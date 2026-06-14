@@ -535,12 +535,20 @@
   .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(15, 23, 42, 0.45);
-    display: none;
+    display: flex;
     align-items: center; justify-content: center;
     z-index: 1000;
     padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s ease;
   }
-  .modal-overlay.open { display: flex; }
+  .modal-overlay.open { opacity: 1; visibility: visible; }
+  .modal-overlay .modal {
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.18s ease;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
 
   .modal {
     background: var(--bg-card);
@@ -894,13 +902,21 @@
 
   /* ===== SETTINGS MODAL ===== */
   .settings-modal-overlay {
-    display: none;
+    display: flex;
     position: fixed; inset: 0;
     background: rgba(15,23,42,0.55);
     z-index: 300;
     align-items: center; justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s ease;
   }
-  .settings-modal-overlay.open { display: flex; }
+  .settings-modal-overlay.open { opacity: 1; visibility: visible; }
+  .settings-modal-overlay .settings-modal {
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.18s ease;
+  }
+  .settings-modal-overlay.open .settings-modal { transform: translateY(0) scale(1); }
   .settings-modal {
     background: var(--bg-card);
     border-radius: var(--radius);
@@ -986,7 +1002,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ny Aina Med's Clinique"></head>
+<meta name="apple-mobile-web-app-title" content="Ny Aina Med's Clinique">
+</head>
 <body>
 <div class="app-layout">
 
@@ -1233,10 +1250,12 @@
               <input type="number" id="dnAnnee" min="1900" max="2100" placeholder="AAAA" style="width:50%;" inputmode="numeric">
             </div>
             <input type="hidden" id="dateNaissance">
+            <div id="dnHint" style="font-size:11.5px; color: var(--danger); margin-top:4px; display:none;">Date de naissance invalide ou dans le futur — l'âge n'a pas été mis à jour.</div>
           </div>
           <div class="field">
             <label>Âge<span class="required">*</span></label>
-            <input type="number" id="age" min="0" max="130" placeholder="Calculé automatiquement" readonly required>
+            <input type="number" id="age" min="0" max="130" placeholder="ex. 45" required>
+            <div style="font-size:11.5px; color: var(--text-muted); margin-top:4px;">Renseignez la date de naissance pour un calcul automatique, ou saisissez l'âge manuellement.</div>
           </div>
           <div class="field">
             <label>Sexe</label>
@@ -1844,21 +1863,110 @@
     clinical: 'clinique_clinical',
     auditLog: 'clinique_audit_log'
   };
+  const CLINIC_SETTINGS_KEY_NAME = 'meditrack_clinic_settings';
+  const CURRENT_USER_KEY = 'clinique_current_user';
+
+  // ===== STOCKAGE INDEXEDDB (avec cache mémoire synchrone) =====
+  // Toutes les données sont stockées dans IndexedDB. Un cache mémoire est
+  // chargé entièrement au démarrage afin que le reste de l'application
+  // puisse continuer à lire/écrire de façon synchrone via safeReadJson /
+  // saveJson, comme auparavant avec localStorage. Chaque écriture met à
+  // jour le cache immédiatement (synchrone) puis persiste dans IndexedDB
+  // en arrière-plan (asynchrone).
+  const IDB_NAME = 'meditrack_db';
+  const IDB_VERSION = 1;
+  const IDB_STORE = 'kv';
+  let _idbDB = null;
+  const _idbCache = {};
+
+  function idbOpen() {
+    return new Promise((resolve, reject) => {
+      if (_idbDB) { resolve(_idbDB); return; }
+      if (!window.indexedDB) { reject(new Error('IndexedDB non disponible')); return; }
+      const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+      req.onupgradeneeded = function(e) {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE);
+        }
+      };
+      req.onsuccess = function(e) {
+        _idbDB = e.target.result;
+        resolve(_idbDB);
+      };
+      req.onerror = function(e) {
+        reject(e.target.error || new Error('Erreur ouverture IndexedDB'));
+      };
+    });
+  }
+
+  // Charge toutes les clés connues depuis IndexedDB dans le cache mémoire.
+  // Si une clé n'existe pas encore dans IndexedDB mais existe dans
+  // localStorage (anciennes versions), elle est migrée automatiquement.
+  function idbPreload() {
+    const keys = Object.values(STORAGE_KEYS).concat([CLINIC_SETTINGS_KEY_NAME, CURRENT_USER_KEY]);
+    return idbOpen().then(db => {
+      return Promise.all(keys.map(key => new Promise(resolve => {
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        const store = tx.objectStore(IDB_STORE);
+        const req = store.get(key);
+        req.onsuccess = function() {
+          if (req.result !== undefined) {
+            _idbCache[key] = req.result;
+            resolve();
+          } else {
+            // Migration depuis localStorage si présent (anciennes versions)
+            try {
+              const legacy = localStorage.getItem(key);
+              if (legacy !== null) {
+                let parsed;
+                try { parsed = JSON.parse(legacy); } catch (e2) { parsed = legacy; }
+                _idbCache[key] = parsed;
+                idbPersist(key, parsed);
+                localStorage.removeItem(key);
+              }
+            } catch (e) { /* ignore */ }
+            resolve();
+          }
+        };
+        req.onerror = function() { resolve(); };
+      })));
+    }).catch(e => {
+      console.error('Erreur ouverture IndexedDB', e);
+      showToast('Le stockage local (IndexedDB) est indisponible. Les données ne seront pas sauvegardées.');
+    });
+  }
+
+  // Persiste une valeur dans IndexedDB (asynchrone, non bloquant).
+  function idbPersist(key, value) {
+    idbOpen().then(db => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(value, key);
+      tx.onerror = function(e) {
+        console.error('Erreur écriture IndexedDB pour', key, e.target.error);
+      };
+    }).catch(e => {
+      console.error('Erreur écriture IndexedDB pour', key, e);
+    });
+  }
 
   function safeReadJson(key, fallback) {
     try {
-      const saved = localStorage.getItem(key);
-      if (!saved) return fallback;
-      return JSON.parse(saved);
+      if (Object.prototype.hasOwnProperty.call(_idbCache, key)) {
+        const v = _idbCache[key];
+        return (v === null || v === undefined) ? fallback : v;
+      }
+      return fallback;
     } catch (e) {
-      console.error('Erreur de lecture localStorage pour', key, e);
+      console.error('Erreur de lecture du cache pour', key, e);
       showToast('Certaines données locales étaient corrompues et ont été ignorées.');
       return fallback;
     }
   }
 
   function saveJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    _idbCache[key] = value;
+    idbPersist(key, value);
   }
 
   function generateId() {
@@ -1931,7 +2039,7 @@
 
   function getCurrentUser() {
     try {
-      const u = localStorage.getItem('clinique_current_user');
+      const u = _idbCache[CURRENT_USER_KEY];
       return u || 'Utilisateur';
     } catch (e) {
       return 'Utilisateur';
@@ -2292,6 +2400,7 @@
   function resetForm() {
     document.getElementById('patientForm').reset();
     document.getElementById('patientId').value = '';
+    document.getElementById('dnHint').style.display = 'none';
     document.getElementById('formTitle').textContent = 'Nouvelle admission';
     document.getElementById('submitBtn').innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -2303,6 +2412,7 @@
   function editPatient(id) {
     const p = patients.find(x => x.id === id);
     if (!p) return;
+    document.getElementById('dnHint').style.display = 'none';
     document.getElementById('patientId').value = p.id;
     document.getElementById('numeroDossier').value = p.numeroDossier || generatePatientNumber();
     document.getElementById('nom').value = p.nom;
@@ -2358,15 +2468,24 @@
     const jour = document.getElementById('dnJour').value;
     const mois = document.getElementById('dnMois').value;
     const annee = document.getElementById('dnAnnee').value;
+    const hint = document.getElementById('dnHint');
+    const allEmpty = !jour && !mois && !annee;
     const result = calculerAgeDepuisDate(jour, mois, annee);
     if (result) {
+      hint.style.display = 'none';
       document.getElementById('age').value = result.age;
       const yyyy = String(result.naissance.getFullYear()).padStart(4, '0');
       const mm = String(result.naissance.getMonth() + 1).padStart(2, '0');
       const dd = String(result.naissance.getDate()).padStart(2, '0');
       document.getElementById('dateNaissance').value = `${yyyy}-${mm}-${dd}`;
+    } else if (allEmpty) {
+      // L'utilisateur a effacé la date de naissance : on n'efface pas un âge déjà saisi.
+      hint.style.display = 'none';
+      document.getElementById('dateNaissance').value = '';
     } else {
-      document.getElementById('age').value = '';
+      // Date partielle ou invalide (ex: future, 31/02...) : on prévient l'utilisateur
+      // sans effacer l'âge déjà calculé/saisi.
+      hint.style.display = 'block';
       document.getElementById('dateNaissance').value = '';
     }
   }
@@ -2496,6 +2615,8 @@
 
   function validatePatientData(patientData, currentId) {
     if (!patientData.nom) return 'Le nom du patient est obligatoire.';
+    if (patientData.age === '' || patientData.age === null || patientData.age === undefined) return "L'âge du patient est obligatoire.";
+    if (!Number.isFinite(patientData.age) || patientData.age < 0 || patientData.age > 130) return "L'âge doit être un nombre compris entre 0 et 130.";
     if (!patientData.medecin) return 'Le médecin référent est obligatoire.';
     if (!patientData.numeroDossier) return 'Le numéro de dossier est obligatoire.';
     if (!patientData.chambre) return 'Le numéro de chambre est obligatoire.';
@@ -3652,17 +3773,18 @@
   });
 
   // ===== PARAMÈTRES CLINIQUE (Logo + Nom) =====
-  const CLINIC_SETTINGS_KEY = 'meditrack_clinic_settings';
+  const CLINIC_SETTINGS_KEY = CLINIC_SETTINGS_KEY_NAME;
 
   function loadClinicSettings() {
     try {
-      const s = localStorage.getItem(CLINIC_SETTINGS_KEY);
-      return s ? JSON.parse(s) : null;
+      const s = _idbCache[CLINIC_SETTINGS_KEY];
+      return (s === undefined || s === null) ? null : s;
     } catch(e) { return null; }
   }
 
   function saveClinicSettings(settings) {
-    localStorage.setItem(CLINIC_SETTINGS_KEY, JSON.stringify(settings));
+    _idbCache[CLINIC_SETTINGS_KEY] = settings;
+    idbPersist(CLINIC_SETTINGS_KEY, settings);
   }
 
   function applyClinicSettings(settings) {
@@ -3786,8 +3908,7 @@
   document.getElementById('settingName').addEventListener('input', updateSettingsPreview);
   document.getElementById('settingSubtitle').addEventListener('input', updateSettingsPreview);
 
-  // Apply on startup
-  applyClinicSettings(loadClinicSettings());
+  // Apply on startup (after IndexedDB cache is loaded — see Init block at bottom)
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       if (document.getElementById('settingsOverlay').classList.contains('open')) closeSettings();
@@ -3852,12 +3973,17 @@
   document.getElementById('sidebarSearch').addEventListener('input', renderSidebarList);
 
   // Init
-  loadData();
-  renderTable();
-  resetForm();
+  idbPreload().then(() => {
+    loadData();
+    renderTable();
+    resetForm();
+    const settings = loadClinicSettings();
+    if (settings) applyClinicSettings(settings);
+  });
 </script>
 
 <script>
 if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js");});}
-</script></body>
+</script>
+</body>
 </html>
