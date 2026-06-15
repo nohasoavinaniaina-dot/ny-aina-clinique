@@ -905,7 +905,7 @@
     display: flex;
     position: fixed; inset: 0;
     background: rgba(15,23,42,0.55);
-    z-index: 300;
+    z-index: 1100;
     align-items: center; justify-content: center;
     opacity: 0;
     visibility: hidden;
@@ -1002,8 +1002,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ny Aina Med's Clinique">
-</head>
+<meta name="apple-mobile-web-app-title" content="Ny Aina Clinique"></head>
 <body>
 <div class="app-layout">
 
@@ -1083,7 +1082,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
       Paramètres clinique
     </button>
-    <div class="sidebar-footer" id="sidebarFooter">MediTrack v1.0 — Données stockées localement sur cet appareil</div>
+    <div class="sidebar-footer" id="sidebarFooter">MediTrack v1.0 — Données stockées localement sur cet appareil<br>Développé par Ny Aina Med's</div>
   </aside>
 
   <!-- ===== MAIN CONTENT ===== -->
@@ -1490,6 +1489,7 @@
           Enregistrer
         </button>
       </div>
+      <div style="text-align:center; margin-top:18px; font-size:11px; color:var(--text-secondary);">Application développée par Ny Aina Med's</div>
     </div>
   </div>
   <!-- /MODAL PARAMÈTRES -->
@@ -1819,7 +1819,7 @@
   </div>
 
   <!-- ===== MODAL CONFIRMATION SUPPRESSION PATIENT ===== -->
-  <div class="modal-overlay" id="deleteConfirmOverlay">
+  <div class="modal-overlay" id="deleteConfirmOverlay" style="z-index: 1200;">
     <div class="modal" style="max-width: 460px;">
       <div class="modal-header">
         <div>
@@ -1874,16 +1874,22 @@
   // jour le cache immédiatement (synchrone) puis persiste dans IndexedDB
   // en arrière-plan (asynchrone).
   const IDB_NAME = 'meditrack_db';
-  const IDB_VERSION = 1;
+  const IDB_VERSION = 2;
   const IDB_STORE = 'kv';
   let _idbDB = null;
+  let _idbOpenPromise = null;
   const _idbCache = {};
 
-  function idbOpen() {
+  // Ouvre (ou ré-ouvre) la base IndexedDB en s'assurant que l'object store
+  // "kv" existe bel et bien. Si une base plus ancienne existe sans ce store
+  // (anciennes versions de l'application), la version est incrémentée pour
+  // forcer "onupgradeneeded" et créer le store manquant. En dernier recours,
+  // si la base reste incohérente, elle est supprimée puis recréée afin que
+  // les écritures ne soient plus silencieusement perdues.
+  function idbOpenAtVersion(version, allowRecreate) {
     return new Promise((resolve, reject) => {
-      if (_idbDB) { resolve(_idbDB); return; }
       if (!window.indexedDB) { reject(new Error('IndexedDB non disponible')); return; }
-      const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+      const req = indexedDB.open(IDB_NAME, version);
       req.onupgradeneeded = function(e) {
         const db = e.target.result;
         if (!db.objectStoreNames.contains(IDB_STORE)) {
@@ -1891,13 +1897,42 @@
         }
       };
       req.onsuccess = function(e) {
-        _idbDB = e.target.result;
-        resolve(_idbDB);
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          // La base existe déjà à une version >= celle demandée mais sans le
+          // store "kv" (incohérence issue d'une version antérieure).
+          db.close();
+          if (allowRecreate) {
+            const delReq = indexedDB.deleteDatabase(IDB_NAME);
+            delReq.onsuccess = delReq.onerror = delReq.onblocked = function() {
+              idbOpenAtVersion(IDB_VERSION, false).then(resolve, reject);
+            };
+          } else {
+            // On retente avec une version supérieure pour forcer la création du store.
+            idbOpenAtVersion(version + 1, true).then(resolve, reject);
+          }
+          return;
+        }
+        resolve(db);
       };
       req.onerror = function(e) {
         reject(e.target.error || new Error('Erreur ouverture IndexedDB'));
       };
     });
+  }
+
+  function idbOpen() {
+    if (_idbDB) return Promise.resolve(_idbDB);
+    if (_idbOpenPromise) return _idbOpenPromise;
+    _idbOpenPromise = idbOpenAtVersion(IDB_VERSION, true).then(db => {
+      _idbDB = db;
+      db.onversionchange = function() { db.close(); _idbDB = null; };
+      return db;
+    }).catch(e => {
+      _idbOpenPromise = null;
+      throw e;
+    });
+    return _idbOpenPromise;
   }
 
   // Charge toutes les clés connues depuis IndexedDB dans le cache mémoire.
@@ -1907,9 +1942,16 @@
     const keys = Object.values(STORAGE_KEYS).concat([CLINIC_SETTINGS_KEY_NAME, CURRENT_USER_KEY]);
     return idbOpen().then(db => {
       return Promise.all(keys.map(key => new Promise(resolve => {
-        const tx = db.transaction(IDB_STORE, 'readonly');
-        const store = tx.objectStore(IDB_STORE);
-        const req = store.get(key);
+        let tx, store, req;
+        try {
+          tx = db.transaction(IDB_STORE, 'readonly');
+          store = tx.objectStore(IDB_STORE);
+          req = store.get(key);
+        } catch (errSync) {
+          console.error('Erreur lecture IndexedDB pour', key, errSync);
+          resolve();
+          return;
+        }
         req.onsuccess = function() {
           if (req.result !== undefined) {
             _idbCache[key] = req.result;
@@ -1938,16 +1980,54 @@
   }
 
   // Persiste une valeur dans IndexedDB (asynchrone, non bloquant).
-  function idbPersist(key, value) {
+  // En cas d'échec (store manquant, transaction impossible, etc.), on
+  // tente une ré-ouverture de la base puis, en dernier recours, on
+  // sauvegarde dans localStorage pour ne jamais perdre les données.
+  function idbPersist(key, value, _retried) {
     idbOpen().then(db => {
-      const tx = db.transaction(IDB_STORE, 'readwrite');
+      let tx;
+      try {
+        tx = db.transaction(IDB_STORE, 'readwrite');
+      } catch (errSync) {
+        console.error('Erreur transaction IndexedDB pour', key, errSync);
+        if (!_retried) {
+          // La base est peut-être incohérente : on force une ré-ouverture propre.
+          _idbDB = null;
+          _idbOpenPromise = null;
+          idbPersist(key, value, true);
+        } else {
+          idbPersistFallback(key, value);
+        }
+        return;
+      }
       tx.objectStore(IDB_STORE).put(value, key);
       tx.onerror = function(e) {
         console.error('Erreur écriture IndexedDB pour', key, e.target.error);
+        if (!_retried) {
+          _idbDB = null;
+          _idbOpenPromise = null;
+          idbPersist(key, value, true);
+        } else {
+          idbPersistFallback(key, value);
+        }
       };
     }).catch(e => {
       console.error('Erreur écriture IndexedDB pour', key, e);
+      idbPersistFallback(key, value);
     });
+  }
+
+  // Filet de sécurité : si IndexedDB est définitivement indisponible,
+  // on conserve quand même les données dans localStorage pour éviter
+  // toute perte silencieuse.
+  function idbPersistFallback(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      showToast('Stockage IndexedDB indisponible : sauvegarde locale de secours utilisée.');
+    } catch (e) {
+      console.error('Erreur de secours localStorage pour', key, e);
+      showToast('Échec de la sauvegarde des données. Vérifiez le stockage de l\'appareil.');
+    }
   }
 
   function safeReadJson(key, fallback) {
@@ -3315,6 +3395,83 @@
   }
 
   // ===== EXPORT PDF / IMPRESSION =====
+  // Ouvre un document HTML autonome (avec ses propres styles, sans dépendre
+  // de la page principale) dans un nouvel onglet, prêt à être imprimé /
+  // enregistré en PDF par l'utilisateur. Cette approche par Blob URL est
+  // utilisée car window.print() sur la page principale produit un export
+  // vide sur certains navigateurs mobiles / WebView Android en mode
+  // file://, le contenu injecté dynamiquement n'étant pas toujours pris en
+  // compte par le moteur d'impression au moment de l'appel.
+  function openPrintDocument(bodyHtml, docTitle) {
+    const printCss = `
+      * { box-sizing: border-box; }
+      body { font-family: 'Inter', Arial, sans-serif; color: #1e293b; margin: 24px; }
+      .print-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0a5f7a; padding-bottom: 10px; margin-bottom: 16px; }
+      .print-header h1 { font-size: 18px; color: #0a5f7a; margin: 0; }
+      .print-header .ph-meta { font-size: 11px; color: #64748b; text-align: right; }
+      .print-section { margin-bottom: 14px; page-break-inside: avoid; }
+      .print-section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #0a5f7a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 8px; }
+      .print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 14px; font-size: 11.5px; }
+      .print-grid .pk { color: #64748b; font-weight: 600; }
+      .print-grid .pv { font-weight: 600; }
+      .print-table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-top: 4px; }
+      .print-table th, .print-table td { border: 1px solid #cbd5e1; padding: 4px 6px; text-align: left; }
+      .print-table th { background: #f1f5f9; }
+      .print-entry { font-size: 11px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9; }
+      .print-entry .pe-head { font-weight: 700; }
+      .print-footer { margin-top: 24px; font-size: 10px; color: #94a3b8; text-align: center; }
+      @media print {
+        body { margin: 0; }
+        .print-actions { display: none !important; }
+      }
+    `;
+    const fullHtml = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>${escapeHtml(docTitle)}</title>
+<style>${printCss}</style>
+</head>
+<body>
+<div class="print-actions" style="margin-bottom:16px; display:flex; gap:8px;">
+  <button id="printActionBtn" style="padding:8px 16px; font-size:13px; font-weight:600; border:1px solid #0a5f7a; background:#0a5f7a; color:#fff; border-radius:6px; cursor:pointer;">Imprimer / Enregistrer en PDF</button>
+</div>
+${bodyHtml}
+<script>
+  // Certains moteurs "Imprimer en PDF" (notamment sur Android) ne tiennent
+  // pas compte de @media print pour masquer cet écran. On masque donc le
+  // bouton via JS juste avant l'impression, puis on le réaffiche après.
+  document.getElementById('printActionBtn').addEventListener('click', function() {
+    var actions = document.querySelector('.print-actions');
+    actions.style.display = 'none';
+    window.print();
+    setTimeout(function() { actions.style.display = 'flex'; }, 500);
+  });
+<\/script>
+</body>
+</html>`;
+
+    try {
+      const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const win = window.open(url, '_blank');
+      if (!win) {
+        // Pop-up bloquée : on propose un téléchargement du document HTML.
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = docTitle.replace(/[^a-z0-9_\-]+/gi, '_') + '.html';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("La fenêtre d'impression a été bloquée : le document a été téléchargé à la place.");
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (e) {
+      console.error('Erreur lors de la génération du document imprimable', e);
+      showToast("Impossible de générer le document à imprimer.");
+    }
+  }
+
   function printDossier() {
     const p = patients.find(x => x.id === currentDossierId);
     if (!p) return;
@@ -3464,11 +3621,11 @@
         `).join('')}
       </div>
 
-      <div class="print-footer">${escapeHtml(_clinicName)} — Dossier clinique généré automatiquement · Document à usage médical interne</div>
+      <div class="print-footer">${escapeHtml(_clinicName)} — Dossier clinique généré automatiquement · Document à usage médical interne · Application développée par Ny Aina Med's</div>
     `;
 
     document.getElementById('printArea').innerHTML = html;
-    window.print();
+    openPrintDocument(html, 'Dossier_' + (p.nom || 'patient'));
   }
 
   // ===== FEUILLE DE SURVEILLANCE JOURNALIÈRE (impression) =====
@@ -3588,11 +3745,11 @@
         </table>
       </div>
 
-      <div class="print-footer">${escapeHtml(_clinicName)} — Feuille de surveillance générée automatiquement · Document à usage médical interne</div>
+      <div class="print-footer">${escapeHtml(_clinicName)} — Feuille de surveillance générée automatiquement · Document à usage médical interne · Application développée par Ny Aina Med's</div>
     `;
 
     document.getElementById('printArea').innerHTML = html;
-    window.print();
+    openPrintDocument(html, 'Surveillance_' + (p.nom || 'patient'));
   }
 
 
@@ -3984,6 +4141,5 @@
 
 <script>
 if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js");});}
-</script>
-</body>
+</script></body>
 </html>
