@@ -841,6 +841,9 @@
     display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
     border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px;
   }
+  .prescription-item.rx-allergie-active {
+    border-color: var(--danger); background: var(--danger-bg);
+  }
   .prescription-item .pi-main { flex: 1; }
   .prescription-item .pi-med { font-weight: 700; font-size: 13.5px; }
   .prescription-item .pi-detail { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; }
@@ -851,9 +854,142 @@
     border: 1px solid var(--border); margin-bottom: 14px;
   }
   .prescription-form .full { grid-column: 1 / -1; }
-  .prescription-form .pf-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+  .prescription-form .pf-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
   .status-active { background: var(--success-bg); color: var(--success); }
   .status-arret { background: var(--neutral-bg); color: var(--neutral); }
+
+  /* ===== UNITÉS DE DOSAGE ===== */
+  .rx-dose-row { display: flex; gap: 6px; align-items: flex-end; }
+  .rx-dose-row input[type="number"] { flex: 1 1 70px; min-width: 60px; }
+  .rx-dose-row select { flex: 1 1 80px; min-width: 70px; }
+  .rx-dose-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #e0f2fe; color: #0369a1;
+    font-size: 11.5px; font-weight: 600; border-radius: 12px;
+    padding: 2px 8px; margin-left: 4px;
+  }
+
+  /* ===== SCORES CLINIQUES (NEWS2 + Glasgow) ===== */
+  .scores-panel {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 16px;
+  }
+  @media (max-width: 640px) { .scores-panel { grid-template-columns: 1fr; } }
+
+  .score-card {
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius); padding: 12px 14px;
+    background: var(--bg-card); position: relative;
+  }
+  .score-card.score-low    { border-color: #86efac; background: #f0fdf4; }
+  .score-card.score-medium { border-color: #fcd34d; background: #fffbeb; }
+  .score-card.score-high   { border-color: #fca5a5; background: #fff1f2; }
+  .score-card.score-urgent { border-color: var(--danger); background: var(--danger-bg); }
+  .score-card.score-empty  { border-color: var(--border); background: var(--neutral-bg); }
+
+  .score-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .score-card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+  .score-value-big {
+    font-size: 36px; font-weight: 800; line-height: 1;
+    color: var(--text-primary);
+  }
+  .score-card.score-medium .score-value-big { color: #b45309; }
+  .score-card.score-high   .score-value-big { color: #c2410c; }
+  .score-card.score-urgent .score-value-big { color: var(--danger); }
+  .score-card.score-empty  .score-value-big { color: var(--text-muted); font-size: 22px; }
+
+  .score-label {
+    font-size: 12.5px; font-weight: 600; margin-top: 4px;
+  }
+  .score-detail { font-size: 11.5px; color: var(--text-secondary); margin-top: 3px; }
+  .score-sub-items { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .score-sub-item {
+    font-size: 11px; border-radius: 10px; padding: 2px 7px;
+    background: rgba(0,0,0,0.06); color: var(--text-secondary);
+  }
+  .score-sub-item.contrib { background: #fef3c7; color: #92400e; font-weight: 600; }
+  .score-sub-item.contrib-high { background: #fee2e2; color: #b91c1c; font-weight: 600; }
+
+  .glasgow-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px;
+  }
+  .glasgow-field label { font-size: 11px; color: var(--text-secondary); margin-bottom: 3px; display: block; }
+  .glasgow-field select { width: 100%; font-size: 12px; padding: 4px 6px; }
+
+  .scores-na { color: var(--text-muted); font-size: 12px; font-style: italic; text-align: center; padding: 8px 0; }
+
+  /* Bannière allergies dans le panneau Traitements */
+  .allergy-banner {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #fff5f5; border: 1.5px solid var(--danger);
+    border-radius: var(--radius-sm); padding: 11px 14px; margin-bottom: 14px;
+  }
+  .allergy-banner.hidden { display: none; }
+  .allergy-banner-icon { flex-shrink: 0; color: var(--danger); margin-top: 1px; }
+  .allergy-banner-icon svg { width: 18px; height: 18px; }
+  .allergy-banner-title { font-size: 13px; font-weight: 700; color: var(--danger); margin-bottom: 4px; }
+  .allergy-banner-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+  .allergy-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--danger); color: white;
+    font-size: 12px; font-weight: 600; border-radius: 20px;
+    padding: 2px 10px;
+  }
+
+  /* Alerte de correspondance en temps réel sur le champ médicament */
+  .rx-match-warning {
+    grid-column: 1 / -1; display: flex; align-items: center; gap: 8px;
+    background: #fff5f5; border: 1.5px solid var(--danger);
+    border-radius: var(--radius-sm); padding: 9px 12px; font-size: 12.5px;
+    font-weight: 600; color: var(--danger);
+  }
+  .rx-match-warning.hidden { display: none; }
+  .rx-match-warning svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* Modale d'alerte allergie bloquante */
+  .allergy-alert-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    background: rgba(0,0,0,0.55); display: flex;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .allergy-alert-overlay.hidden { display: none; }
+  .allergy-alert-card {
+    background: var(--bg-card); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg); width: 100%; max-width: 440px;
+    border-top: 5px solid var(--danger);
+    padding: 24px 24px 20px;
+  }
+  .allergy-alert-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  }
+  .allergy-alert-header .aal-icon {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--danger-bg); color: var(--danger);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .allergy-alert-header .aal-icon svg { width: 22px; height: 22px; }
+  .allergy-alert-header h3 { font-size: 16px; font-weight: 700; color: var(--danger); margin: 0; }
+  .allergy-alert-header p { font-size: 12px; color: var(--text-secondary); margin: 2px 0 0; }
+  .allergy-alert-body { font-size: 13.5px; color: var(--text-primary); margin-bottom: 14px; line-height: 1.5; }
+  .allergy-alert-matches {
+    display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 14px;
+  }
+  .allergy-alert-field { margin-bottom: 14px; }
+  .allergy-alert-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
+  .allergy-alert-field textarea {
+    width: 100%; padding: 9px 11px; border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm); font-size: 13px; font-family: inherit;
+    background: var(--bg-card); color: var(--text-primary); resize: vertical; min-height: 64px;
+  }
+  .allergy-alert-field textarea:focus { outline: 2px solid var(--danger); border-color: var(--danger); }
+  .allergy-alert-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-danger-solid {
+    padding: 9px 18px; border: none; border-radius: var(--radius-sm);
+    background: var(--danger); color: white; font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn-danger-solid:hover { filter: brightness(0.9); }
+  .btn-danger-solid:disabled { opacity: 0.45; cursor: not-allowed; }
 
   /* Print-only clinical record */
   .print-only { display: none; }
@@ -997,6 +1133,111 @@
   }
   .sidebar-settings-btn svg { width: 15px; height: 15px; }
   .sidebar-settings-btn:hover { background: rgba(255,255,255,0.13); color: white; }
+
+  /* ===== AUTHENTIFICATION / VERROUILLAGE ===== */
+  .auth-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .auth-overlay.hidden { display: none; }
+  .auth-card {
+    background: var(--bg-card); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    width: 100%; max-width: 380px;
+    padding: 32px 28px;
+  }
+  .auth-logo {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--primary-light); color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .auth-logo svg { width: 28px; height: 28px; }
+  .auth-card h2 { text-align: center; font-size: 19px; font-weight: 700; color: var(--text-primary); }
+  .auth-card .auth-sub { text-align: center; font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; margin-bottom: 22px; }
+  .auth-field { margin-bottom: 14px; }
+  .auth-field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+  .auth-field input, .auth-field select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;
+    background: var(--bg-card); color: var(--text-primary);
+  }
+  .auth-field input:focus, .auth-field select:focus { outline: 2px solid var(--primary); outline-offset: 1px; border-color: var(--primary); }
+  .auth-error {
+    background: var(--danger-bg); color: var(--danger);
+    font-size: 12.5px; font-weight: 500; border-radius: var(--radius-sm);
+    padding: 9px 12px; margin-bottom: 14px; display: none;
+  }
+  .auth-error.show { display: block; }
+  .auth-btn {
+    width: 100%; padding: 11px; border: none; border-radius: var(--radius-sm);
+    background: var(--primary); color: white; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .auth-btn:hover { background: var(--primary-dark); }
+  .auth-btn.secondary { background: var(--neutral-bg); color: var(--text-primary); margin-top: 8px; }
+  .auth-btn.secondary:hover { background: var(--border); }
+  .auth-link {
+    text-align: center; margin-top: 16px; font-size: 12.5px; color: var(--text-secondary);
+  }
+  .auth-link a { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: none; }
+  .auth-link a:hover { text-decoration: underline; }
+  .auth-userlist { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .auth-userbtn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg-card); cursor: pointer; font-family: inherit; font-size: 13.5px;
+    font-weight: 600; color: var(--text-primary); text-align: left; transition: all 0.15s;
+  }
+  .auth-userbtn:hover { border-color: var(--primary); background: var(--primary-light); }
+  .auth-userbtn .auth-userbtn-avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--primary-light);
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .auth-userbtn .auth-userbtn-role { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+
+  /* Bouton de session / verrouillage dans la sidebar */
+  .sidebar-session-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; margin: 0 12px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07);
+    transition: all 0.15s ease; font-family: inherit; width: calc(100% - 24px);
+  }
+  .sidebar-session-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .sidebar-session-btn:hover { background: rgba(255,255,255,0.13); color: white; }
+  .sidebar-session-user { font-size: 11.5px; color: rgba(255,255,255,0.65); padding: 0 20px 10px; }
+  .sidebar-session-user b { color: rgba(255,255,255,0.95); }
+
+  /* Gestion des comptes (depuis Paramètres) */
+  .account-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+  }
+  .account-row .acc-avatar {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--primary-light);
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .account-row .acc-info { flex: 1; }
+  .account-row .acc-name { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+  .account-row .acc-role { font-size: 11.5px; color: var(--text-secondary); }
+  .account-row .acc-actions { display: flex; gap: 6px; }
+  .account-row .acc-actions button {
+    border: 1px solid var(--border-strong); background: var(--bg-card);
+    border-radius: var(--radius-sm); padding: 5px 10px; font-size: 12px;
+    font-weight: 600; cursor: pointer; font-family: inherit; color: var(--text-primary);
+  }
+  .account-row .acc-actions button:hover { background: var(--neutral-bg); }
+  .account-row .acc-actions button.danger { color: var(--danger); border-color: var(--danger); }
+  .account-row .acc-actions button.danger:hover { background: var(--danger-bg); }
 </style>
 
 <link rel="manifest" href="manifest.json">
@@ -1004,6 +1245,160 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ny Aina Clinique"></head>
 <body>
+
+<!-- ===== ÉCRAN INITIALISATION (premier lancement : créer le 1er compte + mot de passe maître) ===== -->
+<div class="auth-overlay hidden" id="setupOverlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+    </div>
+    <h2>Configuration initiale</h2>
+    <p class="auth-sub">Créez le premier compte administrateur et un mot de passe maître. Ce mot de passe protège le chiffrement de toutes les données du dossier patients.</p>
+    <div class="auth-error" id="setupError"></div>
+    <form id="setupForm">
+      <div class="auth-field">
+        <label for="setupName">Nom complet</label>
+        <input type="text" id="setupName" autocomplete="name" required placeholder="Dr. ... / Infirmier(ère) ...">
+      </div>
+      <div class="auth-field">
+        <label for="setupRole">Rôle</label>
+        <select id="setupRole">
+          <option value="Administrateur">Administrateur</option>
+          <option value="Médecin">Médecin</option>
+          <option value="Infirmier(ère)">Infirmier(ère)</option>
+          <option value="Personnel">Personnel</option>
+        </select>
+      </div>
+      <div class="auth-field">
+        <label for="setupPassword">Mot de passe maître (min. 8 caractères)</label>
+        <input type="password" id="setupPassword" autocomplete="new-password" required minlength="8">
+      </div>
+      <div class="auth-field">
+        <label for="setupPasswordConfirm">Confirmer le mot de passe</label>
+        <input type="password" id="setupPasswordConfirm" autocomplete="new-password" required minlength="8">
+      </div>
+      <button type="submit" class="auth-btn">Créer le compte et chiffrer la base</button>
+    </form>
+    <p class="auth-link">⚠️ Ce mot de passe ne peut pas être récupéré. En cas d'oubli, les données existantes resteront chiffrées et inaccessibles.</p>
+  </div>
+</div>
+
+<!-- ===== ÉCRAN DE CONNEXION (liste des comptes) ===== -->
+<div class="auth-overlay hidden" id="loginOverlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+    </div>
+    <h2 id="loginTitle">Connexion</h2>
+    <p class="auth-sub" id="loginSub">Sélectionnez votre profil</p>
+    <div class="auth-error" id="loginError"></div>
+
+    <div id="loginUserList" class="auth-userlist"></div>
+
+    <form id="loginForm">
+      <div class="auth-field" id="loginUserField">
+        <label for="loginUserSelect">Profil</label>
+        <select id="loginUserSelect"></select>
+      </div>
+      <div class="auth-field">
+        <label for="loginPassword">Mot de passe</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="auth-btn">Déverrouiller</button>
+    </form>
+    <p class="auth-link" id="newAccountLink"><a id="addAccountLink">+ Ajouter un nouveau compte utilisateur</a></p>
+  </div>
+</div>
+
+<!-- ===== ÉCRAN AJOUT D'UN NOUVEAU COMPTE (utilise le mot de passe maître pour rejoindre) ===== -->
+<div class="auth-overlay hidden" id="addAccountOverlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+    </div>
+    <h2>Nouveau compte</h2>
+    <p class="auth-sub">Le mot de passe maître du cabinet est requis pour ajouter un utilisateur.</p>
+    <div class="auth-error" id="addAccountError"></div>
+    <form id="addAccountForm">
+      <div class="auth-field">
+        <label for="newAccName">Nom complet</label>
+        <input type="text" id="newAccName" required>
+      </div>
+      <div class="auth-field">
+        <label for="newAccRole">Rôle</label>
+        <select id="newAccRole">
+          <option value="Médecin">Médecin</option>
+          <option value="Infirmier(ère)">Infirmier(ère)</option>
+          <option value="Personnel">Personnel</option>
+          <option value="Administrateur">Administrateur</option>
+        </select>
+      </div>
+      <div class="auth-field">
+        <label for="newAccPin">Code PIN personnel (4 à 8 chiffres)</label>
+        <input type="password" id="newAccPin" inputmode="numeric" pattern="[0-9]{4,8}" minlength="4" maxlength="8" required>
+      </div>
+      <div class="auth-field">
+        <label for="masterPasswordForAdd">Mot de passe maître du cabinet</label>
+        <input type="password" id="masterPasswordForAdd" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="auth-btn">Créer le compte</button>
+      <button type="button" class="auth-btn secondary" id="cancelAddAccount">Annuler</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== ÉCRAN VERROUILLAGE (session active mais inactive) ===== -->
+<div class="auth-overlay hidden" id="lockOverlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2>Session verrouillée</h2>
+    <p class="auth-sub" id="lockSub">Saisissez votre code pour continuer</p>
+    <div class="auth-error" id="lockError"></div>
+    <form id="lockForm">
+      <div class="auth-field">
+        <label for="lockPassword">Code / mot de passe</label>
+        <input type="password" id="lockPassword" autocomplete="current-password" required autofocus>
+      </div>
+      <button type="submit" class="auth-btn">Déverrouiller</button>
+      <button type="button" class="auth-btn secondary" id="lockSwitchUser">Changer d'utilisateur</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODALE ALERTE ALLERGIE BLOQUANTE ===== -->
+<div class="allergy-alert-overlay hidden" id="allergyAlertOverlay">
+  <div class="allergy-alert-card">
+    <div class="allergy-alert-header">
+      <div class="aal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <h3>⚠️ ALLERGIE DÉTECTÉE</h3>
+        <p>Vérification allergologique automatique</p>
+      </div>
+    </div>
+    <div class="allergy-alert-body" id="allergyAlertBody">
+      Le médicament prescrit correspond à un ou plusieurs allergènes enregistrés pour ce patient.
+    </div>
+    <div class="allergy-alert-matches" id="allergyAlertMatches"></div>
+    <div class="allergy-alert-field">
+      <label for="allergyOverrideReason">
+        Justification clinique obligatoire pour passer outre (tracée dans l'audit) :
+      </label>
+      <textarea id="allergyOverrideReason" placeholder="Ex. : Allergie croisée peu probable, bénéfice supérieur au risque, désensibilisation en cours..."></textarea>
+    </div>
+    <div class="allergy-alert-actions">
+      <button type="button" class="btn btn-secondary" id="allergyAlertCancel">Annuler la prescription</button>
+      <button type="button" class="btn-danger-solid" id="allergyAlertOverride" disabled>Confirmer malgré l'allergie</button>
+    </div>
+  </div>
+</div>
+
 <div class="app-layout">
 
   <!-- ===== SIDEBAR ===== -->
@@ -1078,11 +1473,16 @@
       <div id="sidebarPatientList"></div>
     </div>
 
+    <div class="sidebar-session-user" id="sidebarSessionUser"></div>
+    <button class="sidebar-session-btn" id="lockSessionBtn" title="Verrouiller la session">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Verrouiller la session
+    </button>
     <button class="sidebar-settings-btn" onclick="openSettings()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
       Paramètres clinique
     </button>
-    <div class="sidebar-footer" id="sidebarFooter">MediTrack v1.0 — Données stockées localement sur cet appareil<br>Développé par Ny Aina Med's</div>
+    <div class="sidebar-footer" id="sidebarFooter">MediTrack v9.0 — Données stockées localement sur cet appareil<br>Développé par Ny Aina Med's</div>
   </aside>
 
   <!-- ===== MAIN CONTENT ===== -->
@@ -1481,6 +1881,37 @@
         </button>
       </div>
 
+      <!-- ===== COMPTES UTILISATEURS & SÉCURITÉ ===== -->
+      <div class="settings-field" style="margin-top:24px; border-top:1px solid var(--border); padding-top:18px;">
+        <label style="font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:10px; display:block;">
+          🔒 Comptes utilisateurs &amp; sécurité
+        </label>
+        <div id="accountsList"></div>
+        <button type="button" class="btn btn-secondary btn-sm" style="margin-top:6px;" onclick="openAddAccountFromSettings()">
+          + Ajouter un compte
+        </button>
+      </div>
+
+      <div class="settings-field">
+        <label>Verrouillage automatique après inactivité</label>
+        <select id="settingAutoLockMinutes">
+          <option value="0">Désactivé</option>
+          <option value="1">1 minute</option>
+          <option value="5">5 minutes</option>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+        </select>
+      </div>
+
+      <div class="settings-field">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openChangeMasterPassword()">
+          Changer le mot de passe maître
+        </button>
+        <p style="font-size:11.5px; color:var(--text-secondary); margin-top:6px;">
+          Le mot de passe maître chiffre l'ensemble des dossiers patients (AES-256). En cas d'oubli, les données ne peuvent pas être récupérées.
+        </p>
+      </div>
+
       <div class="settings-actions">
         <button type="button" class="btn btn-secondary btn-sm" onclick="resetSettings()">Réinitialiser</button>
         <button type="button" class="btn btn-secondary" onclick="closeSettings()">Annuler</button>
@@ -1582,19 +2013,92 @@
           </div>
           <div id="vitalsAlertBanner"></div>
 
+          <!-- SCORES CLINIQUES NEWS2 + GLASGOW -->
+          <div class="dossier-section-title" style="margin-top:10px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Scores cliniques (NEWS2 &amp; Glasgow)
+          </div>
+          <div class="scores-panel" id="scoresPanel">
+            <div class="score-card score-empty" id="scoreNEWS2Card">
+              <div class="score-card-header">
+                <span class="score-card-title">NEWS2</span>
+              </div>
+              <div class="score-value-big" id="scoreNEWS2Value">—</div>
+              <div class="score-label" id="scoreNEWS2Label">Aucune donnée</div>
+              <div class="score-detail" id="scoreNEWS2Detail"></div>
+              <div class="score-sub-items" id="scoreNEWS2Items"></div>
+            </div>
+            <div class="score-card score-empty" id="scoreGlasgowCard">
+              <div class="score-card-header">
+                <span class="score-card-title">Glasgow (GCS)</span>
+              </div>
+              <div class="score-value-big" id="scoreGlasgowValue">—</div>
+              <div class="score-label" id="scoreGlasgowLabel">Aucune donnée</div>
+              <div class="score-detail" id="scoreGlasgowDetail"></div>
+              <div class="score-sub-items" id="scoreGlasgowItems"></div>
+            </div>
+          </div>
+
           <div class="dossier-section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             Nouvelle prise de constantes
           </div>
           <div class="entry-form" style="grid-template-columns: repeat(auto-fit, minmax(110px,1fr));">
-            <div class="field-inline"><label>TA Systolique (mmHg)</label><input type="number" id="vTAS" placeholder="ex. 120"></div>
-            <div class="field-inline"><label>TA Diastolique (mmHg)</label><input type="number" id="vTAD" placeholder="ex. 80"></div>
-            <div class="field-inline"><label>FC (bpm)</label><input type="number" id="vFC" placeholder="ex. 75"></div>
-            <div class="field-inline"><label>FR (cycles/min)</label><input type="number" id="vFR" placeholder="ex. 16"></div>
-            <div class="field-inline"><label>Température (°C)</label><input type="number" step="0.1" id="vTemp" placeholder="ex. 37.0"></div>
-            <div class="field-inline"><label>SpO2 (%)</label><input type="number" id="vSpO2" placeholder="ex. 98"></div>
+            <div class="field-inline"><label>TA Systolique (mmHg)</label><input type="number" id="vTAS" placeholder="ex. 120" oninput="updateScoresPreview()"></div>
+            <div class="field-inline"><label>TA Diastolique (mmHg)</label><input type="number" id="vTAD" placeholder="ex. 80" oninput="updateScoresPreview()"></div>
+            <div class="field-inline"><label>FC (bpm)</label><input type="number" id="vFC" placeholder="ex. 75" oninput="updateScoresPreview()"></div>
+            <div class="field-inline"><label>FR (cycles/min)</label><input type="number" id="vFR" placeholder="ex. 16" oninput="updateScoresPreview()"></div>
+            <div class="field-inline"><label>Température (°C)</label><input type="number" step="0.1" id="vTemp" placeholder="ex. 37.0" oninput="updateScoresPreview()"></div>
+            <div class="field-inline"><label>SpO2 (%)</label><input type="number" id="vSpO2" placeholder="ex. 98" oninput="updateScoresPreview()"></div>
+            <div class="field-inline"><label>SpO2 sous O₂ supplémentaire ?</label>
+              <select id="vSpO2O2" onchange="updateScoresPreview()">
+                <option value="non">Non — air ambiant</option>
+                <option value="oui">Oui — O₂ supplémentaire</option>
+              </select>
+            </div>
             <div class="field-inline"><label>Glycémie (g/L)</label><input type="number" step="0.01" id="vGlyc" placeholder="ex. 1.00"></div>
             <div class="field-inline"><label>Poids (kg)</label><input type="number" step="0.1" id="vPoids" placeholder="ex. 70"></div>
+            <!-- GLASGOW -->
+            <div class="field-inline full" style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;">
+              <label style="font-weight:700;color:var(--text-primary);margin-bottom:6px;display:block;">
+                Score de Glasgow (GCS) — optionnel
+              </label>
+              <div class="glasgow-grid">
+                <div class="glasgow-field">
+                  <label>Ouverture des yeux (Y)</label>
+                  <select id="vGlasgowY" onchange="updateScoresPreview()">
+                    <option value="">—</option>
+                    <option value="4">4 — Spontanée</option>
+                    <option value="3">3 — À la voix</option>
+                    <option value="2">2 — À la douleur</option>
+                    <option value="1">1 — Aucune</option>
+                  </select>
+                </div>
+                <div class="glasgow-field">
+                  <label>Réponse verbale (V)</label>
+                  <select id="vGlasgowV" onchange="updateScoresPreview()">
+                    <option value="">—</option>
+                    <option value="5">5 — Orientée</option>
+                    <option value="4">4 — Confuse</option>
+                    <option value="3">3 — Mots inappropriés</option>
+                    <option value="2">2 — Sons incompréhensibles</option>
+                    <option value="1">1 — Aucune</option>
+                  </select>
+                </div>
+                <div class="glasgow-field">
+                  <label>Réponse motrice (M)</label>
+                  <select id="vGlasgowM" onchange="updateScoresPreview()">
+                    <option value="">—</option>
+                    <option value="6">6 — Obéit aux ordres</option>
+                    <option value="5">5 — Localise la douleur</option>
+                    <option value="4">4 — Retrait-flexion</option>
+                    <option value="3">3 — Flexion anormale</option>
+                    <option value="2">2 — Extension</option>
+                    <option value="1">1 — Aucune</option>
+                  </select>
+                </div>
+              </div>
+            </div>
             <div class="entry-actions" style="grid-column: 1 / -1;">
               <button type="button" class="btn btn-primary btn-sm" onclick="addVitals()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1616,7 +2120,7 @@
           <div class="vitals-table-wrap">
             <table class="vitals-table">
               <thead>
-                <tr><th>Date / Heure</th><th>TA</th><th>FC</th><th>FR</th><th>T°</th><th>SpO2</th><th>Glycémie</th><th>Poids</th><th>Interprétation</th><th></th></tr>
+                <tr><th>Date / Heure</th><th>TA</th><th>FC</th><th>FR</th><th>T°</th><th>SpO2</th><th>Glycémie</th><th>Poids</th><th>Interprétation</th><th>NEWS2</th><th>GCS</th><th></th></tr>
               </thead>
               <tbody id="vitalsTableBody"></tbody>
             </table>
@@ -1743,13 +2247,67 @@
 
         <!-- ===== TRAITEMENTS ===== -->
         <div class="clinical-pane" data-pane="traitements">
+          <!-- Bannière allergies persistante (visible si allergies connues) -->
+          <div class="allergy-banner hidden" id="allergyBanner">
+            <div class="allergy-banner-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div>
+              <div class="allergy-banner-title">Allergies connues du patient</div>
+              <div class="allergy-banner-pills" id="allergyBannerPills"></div>
+            </div>
+          </div>
+
           <div class="dossier-section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
             Nouvelle prescription
           </div>
           <div class="prescription-form">
-            <div class="field-inline full"><label>Médicament</label><input type="text" id="rxMed" placeholder="ex. Paracétamol 1g"></div>
-            <div class="field-inline"><label>Posologie</label><input type="text" id="rxPosologie" placeholder="ex. 1g x 3/j"></div>
+            <div class="field-inline full"><label>Médicament (DCI ou nom commercial)</label><input type="text" id="rxMed" placeholder="ex. Paracétamol" oninput="checkRxAllergyMatch()"></div>
+            <!-- Avertissement temps réel allergie -->
+            <div class="rx-match-warning hidden" id="rxMatchWarning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span id="rxMatchWarningText">Correspondance avec allergie connue !</span>
+            </div>
+            <div class="field-inline">
+              <label>Dose unitaire</label>
+              <div class="rx-dose-row">
+                <input type="number" id="rxDose" placeholder="ex. 500" min="0" step="any">
+                <select id="rxUnite">
+                  <option value="mg">mg</option>
+                  <option value="g">g</option>
+                  <option value="µg">µg</option>
+                  <option value="mL">mL</option>
+                  <option value="UI">UI</option>
+                  <option value="mmol">mmol</option>
+                  <option value="%">%</option>
+                  <option value="gouttes">gouttes</option>
+                  <option value="autre">autre</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-inline"><label>Forme galénique</label>
+              <select id="rxForme">
+                <option value="">— choisir —</option>
+                <option value="Comprimé">Comprimé</option>
+                <option value="Gélule">Gélule</option>
+                <option value="Ampoule IV">Ampoule IV</option>
+                <option value="Ampoule IM">Ampoule IM</option>
+                <option value="Sirop">Sirop</option>
+                <option value="Solution buvable">Solution buvable</option>
+                <option value="Sachet">Sachet</option>
+                <option value="Suppositoire">Suppositoire</option>
+                <option value="Pommade / Crème">Pommade / Crème</option>
+                <option value="Collyre">Collyre</option>
+                <option value="Patch">Patch</option>
+                <option value="Aérosol / Spray">Aérosol / Spray</option>
+                <option value="Autre">Autre</option>
+              </select>
+            </div>
+            <div class="field-inline"><label>Fréquence / Posologie</label><input type="text" id="rxPosologie" placeholder="ex. 3x/j, toutes les 8h"></div>
             <div class="field-inline"><label>Voie</label>
               <select id="rxVoie">
                 <option value="Orale">Orale</option>
@@ -1761,7 +2319,7 @@
               </select>
             </div>
             <div class="field-inline"><label>Durée</label><input type="text" id="rxDuree" placeholder="ex. 5 jours"></div>
-            <div class="field-inline full"><label>Remarques</label><input type="text" id="rxRemarques" placeholder="Indication, précautions..."></div>
+            <div class="field-inline full"><label>Remarques / Indication</label><input type="text" id="rxRemarques" placeholder="Indication, précautions..."></div>
             <div class="pf-actions">
               <button type="button" class="btn btn-primary btn-sm" onclick="addPrescription()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1866,6 +2424,29 @@
   const CLINIC_SETTINGS_KEY_NAME = 'meditrack_clinic_settings';
   const CURRENT_USER_KEY = 'clinique_current_user';
 
+  // ===== AUTHENTIFICATION & CHIFFREMENT =====
+  // Clés IndexedDB dédiées aux comptes / sécurité. Ces clés ne sont JAMAIS
+  // chiffrées avec la clé dérivée du mot de passe (elles servent justement
+  // à vérifier ce mot de passe et à dériver la clé).
+  const AUTH_ACCOUNTS_KEY = 'meditrack_accounts';      // liste des comptes (hash PIN, sel, etc.)
+  const AUTH_VAULT_KEY = 'meditrack_vault';            // clé de chiffrement principale, scellée par mot de passe maître
+  const SESSION_STORAGE_KEY = 'meditrack_session';     // session active (sessionStorage, non persistante)
+
+  // Clés de données dont le CONTENU est chiffré dans IndexedDB (données patients sensibles).
+  // Les clés de configuration (paramètres clinique, comptes, etc.) restent en clair.
+  const ENCRYPTED_KEYS = new Set([
+    STORAGE_KEYS.patients,
+    STORAGE_KEYS.dossiers,
+    STORAGE_KEYS.clinical,
+    STORAGE_KEYS.auditLog
+  ]);
+
+  // Clé AES-GCM en mémoire (CryptoKey), disponible uniquement après déverrouillage.
+  let _encryptionKey = null;
+  let _currentSession = null; // { userId, name, role }
+  let _autoLockMinutes = 15;
+  let _autoLockTimer = null;
+
   // ===== STOCKAGE INDEXEDDB (avec cache mémoire synchrone) =====
   // Toutes les données sont stockées dans IndexedDB. Un cache mémoire est
   // chargé entièrement au démarrage afin que le reste de l'application
@@ -1879,6 +2460,89 @@
   let _idbDB = null;
   let _idbOpenPromise = null;
   const _idbCache = {};
+
+  // ===== MODULE CRYPTOGRAPHIE (Web Crypto API) =====
+  // Toutes les données patients (dossiers, constantes, prescriptions, audit)
+  // sont chiffrées avec AES-256-GCM. La clé de chiffrement (_encryptionKey)
+  // n'existe qu'en mémoire, après que l'utilisateur a saisi le mot de passe
+  // maître. Elle n'est jamais persistée en clair.
+
+  function bufToBase64(buf) {
+    return btoa(String.fromCharCode(...new Uint8Array(buf)));
+  }
+  function base64ToBuf(b64) {
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return arr;
+  }
+
+  // Dérive une clé AES-256-GCM à partir d'un mot de passe + sel (PBKDF2, 250k itérations).
+  async function deriveKeyFromPassword(password, saltB64) {
+    const enc = new TextEncoder();
+    const salt = base64ToBuf(saltB64);
+    const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  // Hash d'un PIN/mot de passe utilisateur (PBKDF2 -> base64) pour vérification, sans servir au chiffrement.
+  async function hashSecret(secret, saltB64) {
+    const enc = new TextEncoder();
+    const salt = base64ToBuf(saltB64);
+    const baseKey = await crypto.subtle.importKey('raw', enc.encode(secret), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' }, baseKey, 256);
+    return bufToBase64(bits);
+  }
+
+  function randomSaltB64(bytes) {
+    const arr = crypto.getRandomValues(new Uint8Array(bytes || 16));
+    return bufToBase64(arr);
+  }
+
+  // Chiffre un objet JS (sérialisé en JSON) avec la clé en mémoire.
+  async function encryptValue(value) {
+    if (!_encryptionKey) throw new Error('Clé de chiffrement absente (session verrouillée).');
+    const enc = new TextEncoder();
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const plaintext = enc.encode(JSON.stringify(value));
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, _encryptionKey, plaintext);
+    return { __enc: true, v: 1, iv: bufToBase64(iv), data: bufToBase64(ciphertext) };
+  }
+
+  // Déchiffre une valeur précédemment chiffrée par encryptValue().
+  async function decryptValue(payload) {
+    if (!payload || !payload.__enc) return payload; // valeur non chiffrée (ancienne donnée / config)
+    if (!_encryptionKey) throw new Error('Clé de chiffrement absente (session verrouillée).');
+    const dec = new TextDecoder();
+    const iv = base64ToBuf(payload.iv);
+    const ciphertext = base64ToBuf(payload.data);
+    const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, _encryptionKey, ciphertext);
+    return JSON.parse(dec.decode(plaintext));
+  }
+
+  // Chiffre la clé maîtresse de chiffrement (CryptoKey exportée) avec une clé dérivée
+  // du mot de passe d'un utilisateur donné, afin que chaque utilisateur puisse
+  // déverrouiller la même base de données avec son propre mot de passe/PIN.
+  async function wrapEncryptionKeyWithPassword(rawKeyBytes, password, saltB64) {
+    const wrappingKey = await deriveKeyFromPassword(password, saltB64);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const wrapped = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, wrappingKey, rawKeyBytes);
+    return { iv: bufToBase64(iv), data: bufToBase64(wrapped) };
+  }
+
+  async function unwrapEncryptionKeyWithPassword(wrappedObj, password, saltB64) {
+    const wrappingKey = await deriveKeyFromPassword(password, saltB64);
+    const iv = base64ToBuf(wrappedObj.iv);
+    const ciphertext = base64ToBuf(wrappedObj.data);
+    const rawKeyBytes = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, wrappingKey, ciphertext);
+    return new Uint8Array(rawKeyBytes);
+  }
 
   // Ouvre (ou ré-ouvre) la base IndexedDB en s'assurant que l'object store
   // "kv" existe bel et bien. Si une base plus ancienne existe sans ce store
@@ -1935,13 +2599,14 @@
     return _idbOpenPromise;
   }
 
-  // Charge toutes les clés connues depuis IndexedDB dans le cache mémoire.
-  // Si une clé n'existe pas encore dans IndexedDB mais existe dans
-  // localStorage (anciennes versions), elle est migrée automatiquement.
+  // Charge toutes les clés non-chiffrées depuis IndexedDB dans le cache mémoire.
+  // Les clés sensibles (données patients) sont chargées séparément après authentification.
+  // Migration depuis localStorage si nécessaire (anciennes versions).
   function idbPreload() {
-    const keys = Object.values(STORAGE_KEYS).concat([CLINIC_SETTINGS_KEY_NAME, CURRENT_USER_KEY]);
+    // On charge les clés de configuration + de sécurité (non chiffrées)
+    const configKeys = [CLINIC_SETTINGS_KEY_NAME, CURRENT_USER_KEY, AUTH_ACCOUNTS_KEY, AUTH_VAULT_KEY];
     return idbOpen().then(db => {
-      return Promise.all(keys.map(key => new Promise(resolve => {
+      return Promise.all(configKeys.map(key => new Promise(resolve => {
         let tx, store, req;
         try {
           tx = db.transaction(IDB_STORE, 'readonly');
@@ -1949,22 +2614,21 @@
           req = store.get(key);
         } catch (errSync) {
           console.error('Erreur lecture IndexedDB pour', key, errSync);
-          resolve();
-          return;
+          resolve(); return;
         }
         req.onsuccess = function() {
           if (req.result !== undefined) {
             _idbCache[key] = req.result;
             resolve();
           } else {
-            // Migration depuis localStorage si présent (anciennes versions)
+            // Migration depuis localStorage si présent (anciennes versions sans chiffrement)
             try {
               const legacy = localStorage.getItem(key);
               if (legacy !== null) {
                 let parsed;
                 try { parsed = JSON.parse(legacy); } catch (e2) { parsed = legacy; }
                 _idbCache[key] = parsed;
-                idbPersist(key, parsed);
+                idbPersistRaw(key, parsed);
                 localStorage.removeItem(key);
               }
             } catch (e) { /* ignore */ }
@@ -1979,11 +2643,76 @@
     });
   }
 
+  // Charge et déchiffre les données patients après que _encryptionKey est disponible.
+  async function idbLoadEncryptedData() {
+    const encryptedKeys = Object.values(STORAGE_KEYS);
+    const db = await idbOpen();
+    await Promise.all(encryptedKeys.map(key => new Promise((resolve, reject) => {
+      let tx, store, req;
+      try {
+        tx = db.transaction(IDB_STORE, 'readonly');
+        store = tx.objectStore(IDB_STORE);
+        req = store.get(key);
+      } catch (e) { resolve(); return; }
+      req.onsuccess = async function() {
+        if (req.result !== undefined) {
+          try {
+            // Si la valeur est chiffrée, on la déchiffre avant de la mettre en cache
+            if (req.result && req.result.__enc) {
+              _idbCache[key] = await decryptValue(req.result);
+            } else {
+              // Donnée ancienne non chiffrée : on la met en cache telle quelle
+              // et on la rechiffre immédiatement en arrière-plan.
+              _idbCache[key] = req.result;
+              if (req.result !== undefined && req.result !== null) {
+                saveJson(key, req.result); // rechiffrement
+              }
+            }
+          } catch (e) {
+            console.error('Erreur déchiffrement', key, e);
+            _idbCache[key] = undefined;
+          }
+          resolve();
+        } else {
+          // Migration depuis localStorage (anciennes versions sans chiffrement)
+          try {
+            const legacy = localStorage.getItem(key);
+            if (legacy !== null) {
+              let parsed;
+              try { parsed = JSON.parse(legacy); } catch (e2) { parsed = legacy; }
+              _idbCache[key] = parsed;
+              saveJson(key, parsed); // rechiffrement + persistance
+              localStorage.removeItem(key);
+            }
+          } catch (e) { /* ignore */ }
+          resolve();
+        }
+      };
+      req.onerror = function() { resolve(); };
+    })));
+  }
+
   // Persiste une valeur dans IndexedDB (asynchrone, non bloquant).
-  // En cas d'échec (store manquant, transaction impossible, etc.), on
-  // tente une ré-ouverture de la base puis, en dernier recours, on
-  // sauvegarde dans localStorage pour ne jamais perdre les données.
+  // Si la clé est sensible ET que la clé de chiffrement est disponible,
+  // la valeur est chiffrée avant écriture (AES-256-GCM).
   function idbPersist(key, value, _retried) {
+    const shouldEncrypt = ENCRYPTED_KEYS.has(key) && _encryptionKey !== null;
+    if (shouldEncrypt) {
+      encryptValue(value).then(encrypted => {
+        idbPersistRaw(key, encrypted, _retried);
+      }).catch(e => {
+        console.error('Erreur chiffrement pour', key, e);
+        // Ne pas persister en clair si le chiffrement échoue — sécurité avant tout.
+        showToast('Erreur de chiffrement : données non sauvegardées.');
+      });
+    } else {
+      // Clé de configuration ou session non encore déchiffrée : on persiste en clair.
+      idbPersistRaw(key, value, _retried);
+    }
+  }
+
+  // Écriture brute (sans chiffrement) dans IndexedDB.
+  function idbPersistRaw(key, value, _retried) {
     idbOpen().then(db => {
       let tx;
       try {
@@ -1991,25 +2720,18 @@
       } catch (errSync) {
         console.error('Erreur transaction IndexedDB pour', key, errSync);
         if (!_retried) {
-          // La base est peut-être incohérente : on force une ré-ouverture propre.
-          _idbDB = null;
-          _idbOpenPromise = null;
-          idbPersist(key, value, true);
-        } else {
-          idbPersistFallback(key, value);
-        }
+          _idbDB = null; _idbOpenPromise = null;
+          idbPersistRaw(key, value, true);
+        } else { idbPersistFallback(key, value); }
         return;
       }
       tx.objectStore(IDB_STORE).put(value, key);
       tx.onerror = function(e) {
         console.error('Erreur écriture IndexedDB pour', key, e.target.error);
         if (!_retried) {
-          _idbDB = null;
-          _idbOpenPromise = null;
-          idbPersist(key, value, true);
-        } else {
-          idbPersistFallback(key, value);
-        }
+          _idbDB = null; _idbOpenPromise = null;
+          idbPersistRaw(key, value, true);
+        } else { idbPersistFallback(key, value); }
       };
     }).catch(e => {
       console.error('Erreur écriture IndexedDB pour', key, e);
@@ -2118,12 +2840,11 @@
   }
 
   function getCurrentUser() {
+    if (_currentSession) return _currentSession.name;
     try {
       const u = _idbCache[CURRENT_USER_KEY];
       return u || 'Utilisateur';
-    } catch (e) {
-      return 'Utilisateur';
-    }
+    } catch (e) { return 'Utilisateur'; }
   }
 
   function logAudit(action, entityType, entityId, details) {
@@ -2199,7 +2920,9 @@
 
   function prepareNewAdmission() {
     document.getElementById('numeroDossier').value = generatePatientNumber();
-    document.getElementById('dateAdmission').valueAsDate = new Date();
+    // BUG-06 FIX (aussi pour dateAdmission) : format YYYY-MM-DD local pour éviter décalage UTC
+    const _d = new Date();
+    document.getElementById('dateAdmission').value = _d.getFullYear() + '-' + String(_d.getMonth()+1).padStart(2,'0') + '-' + String(_d.getDate()).padStart(2,'0');
   }
 
   function badgeClass(statut) {
@@ -2574,6 +3297,27 @@
     document.getElementById(id).addEventListener('input', updateAgeFromDateNaissance);
   });
 
+  // BUG-10 FIX : Soumettre l'ajout d'antécédent sur la touche Entrée dans les inputs dédiés.
+  // Sans cela, Entrée soumettrait le formulaire d'admission parent au lieu d'ajouter le tag.
+  const antInputMap = {
+    'newAntMedical':     'medicaux',
+    'newAntChirurgical': 'chirurgicaux',
+    'newAntAllergie':    'allergies',
+    'newAntFamilial':    'familiaux'
+  };
+  Object.entries(antInputMap).forEach(([inputId, category]) => {
+    const el = document.getElementById(inputId);
+    if (el) {
+      el.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+          addAntecedent(category);
+        }
+      });
+    }
+  });
+
   let pendingDeleteId = null;
 
   function deletePatient(id) {
@@ -2873,7 +3617,7 @@
     if (p.medecin) document.getElementById('entryAuthor').value = p.medecin;
 
     document.getElementById('suiviForm').reset();
-    document.getElementById('suiviDate').valueAsDate = new Date();
+    const _today = new Date(); document.getElementById('suiviDate').value = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0') + '-' + String(_today.getDate()).padStart(2,'0'); // BUG-06 FIX: évite le décalage UTC/valueAsDate
     if (p.medecin) document.getElementById('suiviAuthor').value = p.medecin;
 
     // Reset to first tab
@@ -2908,6 +3652,7 @@
     const tab = btn.dataset.tab;
     document.querySelectorAll('.clinical-tab').forEach(t => t.classList.toggle('active', t === btn));
     document.querySelectorAll('.clinical-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === tab));
+    if (tab === 'traitements') renderAllergyBanner();
   });
 
   // ===== ANTÉCÉDENTS =====
@@ -2927,6 +3672,10 @@
         <span class="tag-pill">${escapeHtml(item)}<button title="Supprimer" onclick="removeAntecedent('${cat}', ${idx})">×</button></span>
       `).join('');
     });
+    // Synchronise la bannière si on est sur l'onglet traitements ou pour la mise à jour globale
+    renderAllergyBanner();
+    // Vérifie en temps réel si une prescription en cours serait concernée
+    checkRxAllergyMatch();
   }
 
   function addAntecedent(cat) {
@@ -2956,41 +3705,292 @@
       fr: document.getElementById('vFR').value,
       temp: document.getElementById('vTemp').value,
       spo2: document.getElementById('vSpO2').value,
+      spo2O2: document.getElementById('vSpO2O2').value,
       glyc: document.getElementById('vGlyc').value,
-      poids: document.getElementById('vPoids').value
+      poids: document.getElementById('vPoids').value,
+      glasgowY: document.getElementById('vGlasgowY').value,
+      glasgowV: document.getElementById('vGlasgowV').value,
+      glasgowM: document.getElementById('vGlasgowM').value
     };
-    if (Object.values(vals).every(v => v === '')) {
+    const coreFields = ['tas','tad','fc','fr','temp','spo2','glyc','poids'];
+    if (coreFields.every(k => vals[k] === '')) {
       alert('Veuillez renseigner au moins une constante.');
       return;
+    }
+    // BUG-04 FIX : Vérifier la cohérence TAS > TAD (physiologiquement impossible sinon)
+    if (vals.tas !== '' && vals.tad !== '') {
+      const tas = parseFloat(vals.tas);
+      const tad = parseFloat(vals.tad);
+      if (!isNaN(tas) && !isNaN(tad) && tad >= tas) {
+        alert(`Incohérence tensionnelle : la TA diastolique (${tad} mmHg) ne peut pas être supérieure ou égale à la TA systolique (${tas} mmHg).`);
+        return;
+      }
     }
     const rec = getClinicalRecord(currentDossierId);
     rec.vitals.push({ id: 'v_' + Date.now(), date: new Date().toISOString(), ...vals });
     setClinicalRecord(currentDossierId, rec);
     ['vTAS','vTAD','vFC','vFR','vTemp','vSpO2','vGlyc','vPoids'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('vSpO2O2').value = 'non';
+    ['vGlasgowY','vGlasgowV','vGlasgowM'].forEach(f => document.getElementById(f).value = '');
     renderVitals();
   }
 
   // ===== INTERPRÉTATION CLINIQUE AUTOMATIQUE DES CONSTANTES =====
+  // ===== SCORES CLINIQUES : NEWS2 & GLASGOW =====
+
+  /**
+   * NEWS2 (National Early Warning Score 2) — Royal College of Physicians UK
+   * Paramètres : tas (mmHg), fc (bpm), fr (/min), temp (°C), spo2 (%), spo2O2 ('oui'|'non'),
+   *              conscience (A/C/V/P selon ACVPU — dérivé du Glasgow si dispo)
+   * Retourne : { score, level ('low'|'medium'|'high'|'urgent'), label, detail, items[] }
+   */
+  function calcNEWS2(v) {
+    let total = 0;
+    const items = [];
+    let hasData = false;
+
+    // FR
+    if (v.fr !== '' && v.fr !== undefined) {
+      hasData = true;
+      const fr = parseFloat(v.fr);
+      let pts = 0;
+      if (fr <= 8)        pts = 3;
+      else if (fr <= 11)  pts = 1;
+      else if (fr <= 20)  pts = 0;
+      else if (fr <= 24)  pts = 2;
+      else                pts = 3;
+      total += pts;
+      if (pts > 0) items.push({ label: `FR ${fr}/min`, pts, high: pts >= 3 });
+    }
+
+    // SpO2 — Échelle 1 (sans O2 ou BPCO non précisée)
+    if (v.spo2 !== '' && v.spo2 !== undefined) {
+      hasData = true;
+      const s = parseFloat(v.spo2);
+      const onO2 = v.spo2O2 === 'oui';
+      let pts = 0;
+      if (!onO2) {
+        // Échelle 1 standard
+        if (s <= 91)      pts = 3;
+        else if (s <= 93) pts = 2;
+        else if (s <= 95) pts = 1;
+        else              pts = 0;
+      } else {
+        // Échelle 2 (patient sous O2 ou BPCO cible 88-92%)
+        if (s <= 83)       pts = 3;
+        else if (s <= 85)  pts = 2;
+        else if (s <= 87)  pts = 1;
+        else if (s <= 92)  pts = 0;
+        else if (s <= 94)  pts = 1;
+        else if (s <= 96)  pts = 2;
+        else               pts = 3;
+      }
+      total += pts;
+      if (onO2) { total += 2; items.push({ label: 'O₂ supplémentaire', pts: 2, high: false }); }
+      if (pts > 0) items.push({ label: `SpO2 ${s}%${onO2 ? ' (O₂)' : ''}`, pts, high: pts >= 3 });
+    }
+
+    // Température
+    if (v.temp !== '' && v.temp !== undefined) {
+      hasData = true;
+      const t = parseFloat(v.temp);
+      let pts = 0;
+      if (t <= 35.0)      pts = 3;
+      else if (t <= 36.0) pts = 1;
+      else if (t <= 38.0) pts = 0;
+      else if (t <= 39.0) pts = 1;
+      else                pts = 2;
+      total += pts;
+      if (pts > 0) items.push({ label: `T° ${t}°C`, pts, high: pts >= 3 });
+    }
+
+    // Pression artérielle systolique
+    if (v.tas !== '' && v.tas !== undefined) {
+      hasData = true;
+      const s = parseFloat(v.tas);
+      let pts = 0;
+      if (s <= 90)        pts = 3;
+      else if (s <= 100)  pts = 2;
+      else if (s <= 110)  pts = 1;
+      else if (s <= 219)  pts = 0;
+      else                pts = 3;
+      total += pts;
+      if (pts > 0) items.push({ label: `TAS ${s} mmHg`, pts, high: pts >= 3 });
+    }
+
+    // Fréquence cardiaque
+    if (v.fc !== '' && v.fc !== undefined) {
+      hasData = true;
+      const fc = parseFloat(v.fc);
+      let pts = 0;
+      if (fc <= 40)       pts = 3;
+      else if (fc <= 50)  pts = 1;
+      else if (fc <= 90)  pts = 0;
+      else if (fc <= 110) pts = 1;
+      else if (fc <= 130) pts = 2;
+      else                pts = 3;
+      total += pts;
+      if (pts > 0) items.push({ label: `FC ${fc} bpm`, pts, high: pts >= 3 });
+    }
+
+    // Niveau de conscience (ACVPU) — dérivé du Glasgow si disponible
+    // BUG-02 FIX : Selon le RCP NEWS2, seul un GCS COMPLET (Y+V+M) est utilisé.
+    // ACVPU : Alert = GCS 15 = 0 pt ; tout GCS < 15 (y compris 14) = 3 pts (catégorie C/V/P/U).
+    const gY = v.glasgowY ? parseInt(v.glasgowY) : null;
+    const gV = v.glasgowV ? parseInt(v.glasgowV) : null;
+    const gM = v.glasgowM ? parseInt(v.glasgowM) : null;
+    let consciencePts = 0;
+    let conscienceLabel = null;
+    if (gY !== null && gV !== null && gM !== null) {
+      // GCS complet uniquement
+      hasData = true;
+      const gcs = gY + gV + gM;
+      if (gcs < 15) {
+        // Tout GCS < 15 = non-Alert = 3 points (GCS 14 ET GCS ≤ 13 reçoivent identiquement 3 pts)
+        consciencePts = 3;
+        conscienceLabel = `Conscience altérée (GCS ${gcs})`;
+      }
+      // GCS 15 = Alert = 0 pts — aucune action requise
+    }
+    total += consciencePts;
+    if (consciencePts > 0) items.push({ label: conscienceLabel, pts: consciencePts, high: true });
+
+    if (!hasData) return null;
+
+    // Interprétation NEWS2
+    let level, label, detail;
+    if (total === 0) {
+      level = 'low'; label = 'Risque faible'; detail = 'Surveillance de routine (≥ 12h)';
+    } else if (total <= 4) {
+      level = 'low'; label = 'Risque faible'; detail = 'Réévaluation dans les 4–6h';
+    } else if (total === 5 || total === 6) {
+      level = 'medium'; label = 'Risque modéré'; detail = 'Urgence — évaluation médicale dans l\'heure';
+    } else if (total >= 7) {
+      level = 'high'; label = 'Risque élevé — URGENCE'; detail = 'Prise en charge immédiate, envisager soins intensifs';
+    }
+    // NEWS2 ≥ 3 sur UN seul paramètre = alerte individuelle urgente
+    const hasRedFlag = items.some(i => i.high);
+    if (hasRedFlag && level === 'low') {
+      level = 'medium'; label = 'Alerte paramètre critique'; detail = 'Au moins 1 paramètre en zone rouge — évaluation urgente';
+    }
+
+    return { score: total, level, label, detail, items };
+  }
+
+  /**
+   * Glasgow Coma Scale — interprétation
+   */
+  function calcGlasgow(v) {
+    const gY = v.glasgowY ? parseInt(v.glasgowY) : null;
+    const gV = v.glasgowV ? parseInt(v.glasgowV) : null;
+    const gM = v.glasgowM ? parseInt(v.glasgowM) : null;
+    if (gY === null && gV === null && gM === null) return null;
+
+    // BUG-01 FIX : Le GCS n'est interprétable que si les 3 composantes (Y, V, M) sont renseignées.
+    // Un score partiel (ex : Y=1, V=null, M=null → total=1) serait médicalement dangereux à interpréter.
+    const isComplete = gY !== null && gV !== null && gM !== null;
+    const score = (gY ?? 0) + (gV ?? 0) + (gM ?? 0);
+    const display = `${gY ?? '?'}/${gV ?? '?'}/${gM ?? '?'}`;
+
+    let level, label, detail;
+    if (!isComplete) {
+      // Score incomplet : on affiche les sous-scores disponibles sans interprétation
+      level = 'empty';
+      label = 'GCS incomplet';
+      detail = 'Renseigner Y, V et M pour obtenir le score total';
+    } else if (score >= 14) { level = 'low';    label = 'Conscience normale';      detail = 'GCS 14-15 — patient conscient et orienté'; }
+    else if (score >= 11)   { level = 'medium'; label = 'Trouble léger';            detail = 'GCS 11-13 — surveillance neurologique rapprochée'; }
+    else if (score >= 8)    { level = 'high';   label = 'Trouble modéré';           detail = 'GCS 8-10 — risque de perte des réflexes protecteurs'; }
+    else                    { level = 'urgent'; label = 'Coma — URGENCE';           detail = 'GCS ≤ 7 — intubation à envisager, réanimation'; }
+
+    const items = [
+      { label: `Yeux (Y) : ${gY ?? '—'}`, pts: gY },
+      { label: `Verbal (V) : ${gV ?? '—'}`, pts: gV },
+      { label: `Moteur (M) : ${gM ?? '—'}`, pts: gM }
+    ].filter(i => i.pts !== null);
+    return { score: isComplete ? score : null, display, level, label, detail, items, isComplete };
+  }
+
+  // CSS class selon level NEWS2
+  const NEWS2_CSS = { low: 'score-low', medium: 'score-medium', high: 'score-high', urgent: 'score-urgent', empty: 'score-empty' };
+  const GCS_CSS   = { low: 'score-low', medium: 'score-medium', high: 'score-high', urgent: 'score-urgent', empty: 'score-empty' };
+
+  function renderScoresFromVitals(v) {
+    const news = calcNEWS2(v);
+    const gcs  = calcGlasgow(v);
+
+    // — NEWS2 card —
+    const nc = document.getElementById('scoreNEWS2Card');
+    const nv = document.getElementById('scoreNEWS2Value');
+    const nl = document.getElementById('scoreNEWS2Label');
+    const nd = document.getElementById('scoreNEWS2Detail');
+    const ni = document.getElementById('scoreNEWS2Items');
+    if (nc) {
+      nc.className = 'score-card ' + (news ? NEWS2_CSS[news.level] : 'score-empty');
+      nv.textContent = news ? news.score : '—';
+      nl.textContent = news ? news.label : 'Données insuffisantes';
+      nd.textContent = news ? news.detail : '';
+      ni.innerHTML   = news
+        ? news.items.map(i => `<span class="score-sub-item ${i.high ? 'contrib-high' : 'contrib'}">+${i.pts} ${i.label}</span>`).join('')
+        : '';
+    }
+
+    // — Glasgow card —
+    const gc = document.getElementById('scoreGlasgowCard');
+    const gv = document.getElementById('scoreGlasgowValue');
+    const gl = document.getElementById('scoreGlasgowLabel');
+    const gd = document.getElementById('scoreGlasgowDetail');
+    const gi = document.getElementById('scoreGlasgowItems');
+    if (gc) {
+      gc.className = 'score-card ' + (gcs ? GCS_CSS[gcs.level] : 'score-empty');
+      gv.textContent = gcs ? (gcs.isComplete ? `${gcs.score} (${gcs.display})` : `? (${gcs.display})`) : '—';
+      gl.textContent = gcs ? gcs.label : 'GCS non renseigné';
+      gd.textContent = gcs ? gcs.detail : 'Renseigner Y/V/M dans le formulaire';
+      gi.innerHTML   = gcs
+        ? gcs.items.map(i => `<span class="score-sub-item contrib">${i.label}</span>`).join('')
+        : '';
+    }
+  }
+
+  // Preview en temps réel depuis les champs du formulaire (avant enregistrement)
+  function updateScoresPreview() {
+    const v = {
+      tas: document.getElementById('vTAS') ? document.getElementById('vTAS').value : '',
+      tad: document.getElementById('vTAD') ? document.getElementById('vTAD').value : '',
+      fc: document.getElementById('vFC') ? document.getElementById('vFC').value : '',
+      fr: document.getElementById('vFR') ? document.getElementById('vFR').value : '',
+      temp: document.getElementById('vTemp') ? document.getElementById('vTemp').value : '',
+      spo2: document.getElementById('vSpO2') ? document.getElementById('vSpO2').value : '',
+      spo2O2: document.getElementById('vSpO2O2') ? document.getElementById('vSpO2O2').value : 'non',
+      glasgowY: document.getElementById('vGlasgowY') ? document.getElementById('vGlasgowY').value : '',
+      glasgowV: document.getElementById('vGlasgowV') ? document.getElementById('vGlasgowV').value : '',
+      glasgowM: document.getElementById('vGlasgowM') ? document.getElementById('vGlasgowM').value : ''
+    };
+    renderScoresFromVitals(v);
+  }
+
   // Classification tensionnelle selon ESC/ESH 2023 (mmHg)
   function interpretTA(tas, tad) {
     if (tas === '' && tad === '') return null;
     const sys = tas !== '' ? parseFloat(tas) : null;
     const dia = tad !== '' ? parseFloat(tad) : null;
 
-    // Hypotension
+    // Hypotension (priorité maximale)
     if ((sys !== null && sys < 90) || (dia !== null && dia < 60)) {
       return { label: 'Hypotension artérielle', level: 'danger', detail: 'TA < 90/60 mmHg' };
     }
-    // Crise hypertensive (urgence/urgence vitale) ≥ 180/120
+    // Crise hypertensive (urgence vitale) ≥ 180/120
     if ((sys !== null && sys >= 180) || (dia !== null && dia >= 120)) {
       return { label: 'Crise hypertensive (≥ 180/120)', level: 'danger', detail: 'Vérifier signes de gravité, avis médical urgent' };
     }
-    // HTA grade 3 ≥ 160/100
+    // BUG-05 FIX : HTA grade 3 ≥ 160/100 — séparé du grade 2 pour clarté
+    // Selon ESH/ESC 2023 : grade 3 si SYS ≥ 180 OU DIA ≥ 110 (couvert ci-dessus pour ≥180/≥120,
+    // et ici pour la plage 160-179 / 100-109 qui est grade 2)
+    // Grade 3 : SYS ≥ 180 déjà couvert. Grade 2 : 160-179 / 100-109
     if ((sys !== null && sys >= 160) || (dia !== null && dia >= 100)) {
-      return { label: 'HTA grade 3 (sévère)', level: 'danger', detail: '≥ 160/100 mmHg' };
+      return { label: 'HTA grade 2 (modérée-sévère)', level: 'danger', detail: '160-179 / 100-109 mmHg' };
     }
-    // HTA grade 2 160-179 / 100-109 -- already covered above; grade 2: 160-179/100-109
-    // HTA grade 1 140-159 / 90-99
+    // HTA grade 1 : 140-159 / 90-99
     if ((sys !== null && sys >= 140) || (dia !== null && dia >= 90)) {
       return { label: 'HTA grade 1', level: 'warning', detail: '140-159 / 90-99 mmHg' };
     }
@@ -3262,6 +4262,13 @@
     renderVitalsAlertBanner(sorted);
     renderVitalsCharts(sorted);
 
+    // Mise à jour des scores cliniques avec la dernière mesure
+    if (sorted.length > 0) {
+      renderScoresFromVitals(sorted[0]);
+    } else {
+      renderScoresFromVitals({});
+    }
+
     tbody.innerHTML = sorted.map(v => {
       const results = interpretVitalsEntry(v);
       const byKey = {};
@@ -3298,6 +4305,8 @@
             ? '<span class="vital-tag lvl-normal">Normal</span>'
             : `<span class="vital-tag lvl-${overallLevel}${overallLevel === 'danger' ? ' pulse' : ''}">${overallLevel === 'danger' ? 'Anomalie' : 'À surveiller'}</span>`)}
         </td>
+        <td>${(() => { const n = calcNEWS2(v); if (!n) return '<span style="color:var(--text-muted)">—</span>'; const cls = n.level === 'low' ? '#15803d' : n.level === 'medium' ? '#b45309' : '#b91c1c'; return `<span style="font-weight:700;color:${cls};">${n.score}</span><br><span style="font-size:10.5px;color:var(--text-secondary);">${n.label}</span>`; })()}</td>
+        <td>${(() => { const g = calcGlasgow(v); if (!g) return '<span style="color:var(--text-muted)">—</span>'; const cls = g.level === 'low' ? '#15803d' : g.level === 'medium' ? '#b45309' : '#b91c1c'; const scoreDisplay = g.isComplete ? g.score : '?'; return `<span style="font-weight:700;color:${cls};">${scoreDisplay}</span><span style="color:var(--text-muted);font-size:10.5px;"> (${g.display})</span>`; })()}</td>
         <td><button class="icon-btn danger" title="Supprimer" onclick="deleteVitals('${v.id}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         </button></td>
@@ -3328,28 +4337,256 @@
   }
 
   // ===== TRAITEMENTS / PRESCRIPTIONS =====
+  // ===== SYSTÈME D'ALERTE ALLERGOLOGIQUE =====
+
+  // Mots-clés de classes pharmacologiques et familles d'allergènes pour la correspondance floue.
+  // Format : { token: [termes_médicaments_associés] }
+  const ALLERGY_CROSS_REF = {
+    'pénicilline': ['amoxicilline','ampicilline','pipéracilline','cloxacilline','flucloxacilline','augmentin','amoxiclav','oxacilline'],
+    'penicilline': ['amoxicilline','ampicilline','pipéracilline','cloxacilline','augmentin','amoxiclav'],
+    'amoxicilline': ['pénicilline','augmentin','amoxiclav','ampicilline'],
+    'bêtalactamine': ['pénicilline','amoxicilline','ampicilline','céfazoline','céftriaxone','céfuroxime','céfotaxime','imipénème','méropénème'],
+    'betalactamine': ['pénicilline','amoxicilline','ampicilline','céfazoline','céftriaxone','imipénème','méropénème'],
+    'céphalosporine': ['céfazoline','céftriaxone','céfuroxime','céfotaxime','céfépime','céfixime'],
+    'cephalosporine': ['céfazoline','céftriaxone','céfuroxime','céfotaxime','céfépime'],
+    'sulfamide': ['cotrimoxazole','triméthoprime','sulfaméthoxazole','bactrim'],
+    'aspirine': ['acide acétylsalicylique','aspégic','aspirin','asa'],
+    'ains': ['ibuprofène','diclofénac','kétoprofène','naproxène','célécoxib','piroxicam','indométacine'],
+    'ibuprofene': ['ibuprofène','ains','kétoprofène','naproxène'],
+    'codeine': ['codéine','dihydrocodéine','tramadol','morphine','hydromorphone'],
+    'codéine': ['codéine','dihydrocodéine','tramadol'],
+    'latex': ['latex','caoutchouc'],
+    'iode': ['iode','povidone','amiodarone','produit de contraste iodé'],
+    'contrast': ['produit de contraste','iobitridol','iopromide'],
+    'metformine': ['metformine','glucophage'],
+    'statine': ['atorvastatine','rosuvastatine','simvastatine','pravastatine','fluvastatine'],
+    'fluoroquinolone': ['ciprofloxacine','lévofloxacine','ofloxacine','moxifloxacine'],
+    'macrolide': ['azithromycine','clarithromycine','érythromycine','spiramycine'],
+    'imidazole': ['métronidazole','flagyl','tinidazole','ornidazole'],
+    'metronidazole': ['métronidazole','flagyl'],
+    'carbamazepine': ['carbamazépine','tégrétol'],
+    'allopurinol': ['allopurinol','adenuric'],
+    'vancomycine': ['vancomycine'],
+    'rifampicine': ['rifampicine','rifampine'],
+    'heparine': ['héparine','enoxaparine','lovenox','tinzaparine','daltéparine'],
+    'morphine': ['morphine','opioides','tramadol','fentanyl','oxycodone','buprénorphine'],
+    'arachide': ['arachide','cacahuète','huile d\'arachide'],
+    'gluten': ['blé','orge','seigle','avoine'],
+    'lait': ['lactose','lait','caséine'],
+    'soja': ['soja','lécithine de soja'],
+    'œuf': ['albumine','blanc d\'oeuf','lysozyme'],
+    'nickel': ['nickel'],
+    'paracetamol': ['paracétamol','doliprane','efferalgan','acetaminophene'],
+    'ketamine': ['kétamine'],
+    'propofol': ['propofol','diprivan'],
+    'thiopental': ['thiopental','penthotal'],
+  };
+
+  // Normalise un texte pour la comparaison (minuscule, sans accents, sans ponctuation)
+  function normalizeForMatch(str) {
+    return (str || '').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ').trim();
+  }
+
+  // Retourne la liste des allergènes du patient courant
+  function getCurrentAllergies() {
+    if (!currentDossierId) return [];
+    const rec = getClinicalRecord(currentDossierId);
+    return (rec.antecedents && rec.antecedents.allergies) ? rec.antecedents.allergies : [];
+  }
+
+  // Détecte les correspondances entre un nom de médicament et les allergies du patient.
+  // Retourne la liste des allergènes qui matchent (pour affichage dans la modale).
+  function detectAllergyMatches(medName) {
+    const allergies = getCurrentAllergies();
+    if (!allergies.length || !medName.trim()) return [];
+
+    const medNorm = normalizeForMatch(medName);
+    const matched = new Set();
+
+    allergies.forEach(allergen => {
+      const allergenNorm = normalizeForMatch(allergen);
+
+      // 1. Correspondance directe (sous-chaîne dans les deux sens)
+      if (medNorm.includes(allergenNorm) || allergenNorm.includes(medNorm)) {
+        matched.add(allergen);
+        return;
+      }
+
+      // 2. Correspondance croisée via le dictionnaire pharmacologique
+      const crossTerms = ALLERGY_CROSS_REF[allergenNorm] || [];
+      if (crossTerms.some(t => medNorm.includes(normalizeForMatch(t)) || normalizeForMatch(t).includes(medNorm))) {
+        matched.add(allergen);
+        return;
+      }
+
+      // 3. Cherche si un des tokens du médicament correspond à un allergène
+      const medTokens = medNorm.split(/\s+/);
+      medTokens.forEach(tok => {
+        if (tok.length < 4) return;
+        if (allergenNorm.includes(tok) || tok.includes(allergenNorm.replace(/\s/g, ''))) {
+          matched.add(allergen);
+        }
+        const crossFromMed = ALLERGY_CROSS_REF[tok] || [];
+        if (crossFromMed.some(t => allergenNorm.includes(normalizeForMatch(t)))) {
+          matched.add(allergen);
+        }
+      });
+    });
+
+    return Array.from(matched);
+  }
+
+  // Met à jour la bannière d'allergies dans le panneau Traitements
+  function renderAllergyBanner() {
+    const allergies = getCurrentAllergies();
+    const banner = document.getElementById('allergyBanner');
+    const pills = document.getElementById('allergyBannerPills');
+    if (!banner || !pills) return;
+
+    if (allergies.length === 0) {
+      banner.classList.add('hidden');
+      return;
+    }
+    banner.classList.remove('hidden');
+    pills.innerHTML = allergies.map(a => `<span class="allergy-pill">⚠ ${escapeHtml(a)}</span>`).join('');
+  }
+
+  // Vérifie en temps réel la correspondance allergie lors de la saisie du médicament
+  function checkRxAllergyMatch() {
+    const med = document.getElementById('rxMed').value;
+    const matches = detectAllergyMatches(med);
+    const warning = document.getElementById('rxMatchWarning');
+    const warningText = document.getElementById('rxMatchWarningText');
+    if (!warning) return;
+
+    if (matches.length > 0) {
+      warning.classList.remove('hidden');
+      warningText.textContent = `Possible allergie : ${matches.join(', ')} — vérifier avant de prescrire.`;
+    } else {
+      warning.classList.add('hidden');
+    }
+  }
+
+  // Variable pour stocker les données en attente lors de la validation override
+  let _pendingRxData = null;
+
   function addPrescription() {
     const med = document.getElementById('rxMed').value.trim();
     if (!med) {
       alert('Veuillez indiquer le nom du médicament.');
       return;
     }
-    const rec = getClinicalRecord(currentDossierId);
-    rec.prescriptions.push({
-      id: 'rx_' + Date.now(),
-      med: med,
-      posologie: document.getElementById('rxPosologie').value.trim(),
-      voie: document.getElementById('rxVoie').value,
-      duree: document.getElementById('rxDuree').value.trim(),
-      remarques: document.getElementById('rxRemarques').value.trim(),
-      date: new Date().toISOString(),
-      statut: 'Actif'
-    });
-    setClinicalRecord(currentDossierId, rec);
-    ['rxMed','rxPosologie','rxDuree','rxRemarques'].forEach(f => document.getElementById(f).value = '');
-    document.getElementById('rxVoie').value = 'Orale';
-    renderPrescriptions();
+
+    const matches = detectAllergyMatches(med);
+
+    if (matches.length > 0) {
+      // Alerte bloquante : on stocke les données et on attend la décision du prescripteur
+      _pendingRxData = {
+        med,
+        dose: document.getElementById('rxDose').value.trim(),
+        unite: document.getElementById('rxUnite').value,
+        forme: document.getElementById('rxForme').value,
+        posologie: document.getElementById('rxPosologie').value.trim(),
+        voie: document.getElementById('rxVoie').value,
+        duree: document.getElementById('rxDuree').value.trim(),
+        remarques: document.getElementById('rxRemarques').value.trim(),
+        allergyMatches: matches
+      };
+      openAllergyAlert(med, matches);
+    } else {
+      _commitPrescription({
+        med,
+        dose: document.getElementById('rxDose').value.trim(),
+        unite: document.getElementById('rxUnite').value,
+        forme: document.getElementById('rxForme').value,
+        posologie: document.getElementById('rxPosologie').value.trim(),
+        voie: document.getElementById('rxVoie').value,
+        duree: document.getElementById('rxDuree').value.trim(),
+        remarques: document.getElementById('rxRemarques').value.trim(),
+        allergyMatches: []
+      });
+    }
   }
+
+  function _commitPrescription(data, overrideReason) {
+    const rec = getClinicalRecord(currentDossierId);
+    const rx = {
+      id: 'rx_' + Date.now(),
+      med: data.med,
+      dose: data.dose || '',
+      unite: data.unite || 'mg',
+      forme: data.forme || '',
+      posologie: data.posologie,
+      voie: data.voie,
+      duree: data.duree,
+      remarques: data.remarques,
+      date: new Date().toISOString(),
+      statut: 'Actif',
+      allergyMatches: data.allergyMatches || [],
+      allergyOverride: overrideReason || null
+    };
+    rec.prescriptions.push(rx);
+    setClinicalRecord(currentDossierId, rec);
+
+    // Trace dans l'audit si passage en force
+    if (overrideReason) {
+      logAudit('ALLERGIE_OVERRIDE', 'prescription', currentDossierId, {
+        medicament: data.med,
+        allergiesDetectees: data.allergyMatches,
+        justification: overrideReason,
+        prescripteur: getCurrentUser()
+      });
+    } else {
+      logAudit('PRESCRIPTION_AJOUTEE', 'prescription', currentDossierId, {
+        medicament: data.med,
+        prescripteur: getCurrentUser()
+      });
+    }
+
+    ['rxMed','rxPosologie','rxDuree','rxRemarques'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('rxDose').value = '';
+    document.getElementById('rxUnite').value = 'mg';
+    document.getElementById('rxForme').value = '';
+    document.getElementById('rxVoie').value = 'Orale';
+    document.getElementById('rxMatchWarning').classList.add('hidden');
+    renderPrescriptions();
+    _pendingRxData = null;
+  }
+
+  // Ouvre la modale d'alerte allergie bloquante
+  function openAllergyAlert(med, matches) {
+    document.getElementById('allergyAlertBody').innerHTML =
+      `Le médicament <strong>${escapeHtml(med)}</strong> correspond à ${matches.length > 1 ? 'des allergènes connus' : 'un allergène connu'} de ce patient :`;
+    document.getElementById('allergyAlertMatches').innerHTML =
+      matches.map(m => `<span class="allergy-pill">⚠ ${escapeHtml(m)}</span>`).join('');
+    document.getElementById('allergyOverrideReason').value = '';
+    document.getElementById('allergyAlertOverride').disabled = true;
+    document.getElementById('allergyAlertOverlay').classList.remove('hidden');
+    document.getElementById('allergyOverrideReason').focus();
+  }
+
+  // La justification est obligatoire pour activer le bouton de confirmation
+  document.getElementById('allergyOverrideReason').addEventListener('input', function() {
+    document.getElementById('allergyAlertOverride').disabled = this.value.trim().length < 10;
+  });
+
+  document.getElementById('allergyAlertCancel').addEventListener('click', () => {
+    document.getElementById('allergyAlertOverlay').classList.add('hidden');
+    _pendingRxData = null;
+    showToast('Prescription annulée — allergie non ignorée.');
+  });
+
+  document.getElementById('allergyAlertOverride').addEventListener('click', () => {
+    const reason = document.getElementById('allergyOverrideReason').value.trim();
+    if (reason.length < 10) return;
+    document.getElementById('allergyAlertOverlay').classList.add('hidden');
+    if (_pendingRxData) {
+      _commitPrescription(_pendingRxData, reason);
+      showToast('Prescription ajoutée (passage en force tracé dans l\'audit).');
+    }
+  });
 
   function togglePrescriptionStatus(rxId) {
     const rec = getClinicalRecord(currentDossierId);
@@ -3374,13 +4611,20 @@
     const container = document.getElementById('prescriptionList');
     document.getElementById('prescriptionEmpty').style.display = sorted.length === 0 ? 'block' : 'none';
 
-    container.innerHTML = sorted.map(rx => `
-      <div class="prescription-item">
+    container.innerHTML = sorted.map(rx => {
+      const hasAllergyActive = rx.statut === 'Actif' && rx.allergyMatches && rx.allergyMatches.length > 0;
+      const overrideBadge = rx.allergyOverride
+        ? `<span class="badge" style="background:#fee2e2;color:#b91c1c;margin-left:4px;" title="Justification : ${escapeHtml(rx.allergyOverride)}">⚠ Allergie (justifié)</span>`
+        : (hasAllergyActive ? `<span class="badge" style="background:#fee2e2;color:#b91c1c;margin-left:4px;">⚠ Allergie</span>` : '');
+
+      return `
+      <div class="prescription-item${hasAllergyActive ? ' rx-allergie-active' : ''}">
         <div class="pi-main">
-          <div class="pi-med">${escapeHtml(rx.med)} <span class="badge ${rx.statut === 'Actif' ? 'status-active' : 'status-arret'}" style="margin-left:6px;">${escapeHtml(rx.statut)}</span></div>
-          <div class="pi-detail">${escapeHtml(rx.posologie || '-')} · ${escapeHtml(rx.voie || '-')}${rx.duree ? ' · ' + escapeHtml(rx.duree) : ''}</div>
+          <div class="pi-med">${escapeHtml(rx.med)} <span class="badge ${rx.statut === 'Actif' ? 'status-active' : 'status-arret'}" style="margin-left:6px;">${escapeHtml(rx.statut)}</span>${overrideBadge}${rx.dose ? `<span class="rx-dose-badge">${escapeHtml(rx.dose)} ${escapeHtml(rx.unite || 'mg')}${rx.forme ? ' · ' + escapeHtml(rx.forme) : ''}</span>` : ''}</div>
+          <div class="pi-detail">${rx.posologie ? escapeHtml(rx.posologie) + ' · ' : ''}${escapeHtml(rx.voie || '-')}${rx.duree ? ' · ' + escapeHtml(rx.duree) : ''}</div>
           ${rx.remarques ? `<div class="pi-detail">${escapeHtml(rx.remarques)}</div>` : ''}
-          <div class="pi-date">Prescrit le ${formatDateTime(rx.date)}</div>
+          ${rx.allergyOverride ? `<div class="pi-detail" style="color:var(--danger);font-size:11.5px;">Justification : ${escapeHtml(rx.allergyOverride)}</div>` : ''}
+          <div class="pi-date">Prescrit le ${formatDateTime(rx.date)} — ${escapeHtml(rx.prescriberName || getCurrentUser())}</div>
         </div>
         <div class="actions-cell">
           <button class="icon-btn" title="${rx.statut === 'Actif' ? 'Marquer comme arrêté' : 'Réactiver'}" onclick="togglePrescriptionStatus('${rx.id}')">
@@ -3390,9 +4634,13 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </button>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
+
+    // Met à jour aussi la bannière (au cas où des allergies auraient changé)
+    renderAllergyBanner();
   }
+
 
   // ===== EXPORT PDF / IMPRESSION =====
   // Ouvre un document HTML autonome (avec ses propres styles, sans dépendre
@@ -3921,7 +5169,7 @@ ${bodyHtml}
     document.getElementById('suiviTransit').value = '';
     document.getElementById('suiviAppetit').value = '';
     document.getElementById('suiviMobilite').value = '';
-    document.getElementById('suiviDate').valueAsDate = new Date();
+    const _today = new Date(); document.getElementById('suiviDate').value = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0') + '-' + String(_today.getDate()).padStart(2,'0'); // BUG-06 FIX: évite le décalage UTC/valueAsDate
     renderSuiviTimeline();
   });
 
@@ -3967,7 +5215,7 @@ ${bodyHtml}
     }
   }
 
-  function openSettings() {
+  function _coreOpenSettings() {
     const settings = loadClinicSettings() || {};
     document.getElementById('settingName').value = settings.name || 'MediTrack';
     document.getElementById('settingSubtitle').value = settings.subtitle || 'Gestion des patients hospitalisés';
@@ -4000,7 +5248,7 @@ ${bodyHtml}
     }
   }
 
-  function saveSettings() {
+  function _coreSaveSettings() {
     const name = document.getElementById('settingName').value.trim() || 'MediTrack';
     const subtitle = document.getElementById('settingSubtitle').value.trim() || 'Gestion des patients hospitalisés';
     const settings = { name, subtitle, logoData: settingLogoData };
@@ -4129,13 +5377,487 @@ ${bodyHtml}
   // ===== SIDEBAR QUICK SEARCH =====
   document.getElementById('sidebarSearch').addEventListener('input', renderSidebarList);
 
-  // Init
-  idbPreload().then(() => {
+  // ===================================================================
+  // MODULE AUTHENTIFICATION & GESTION DES COMPTES
+  // ===================================================================
+
+  // --- Helpers UI auth ---
+  function showAuthOverlay(id) {
+    ['setupOverlay','loginOverlay','addAccountOverlay','lockOverlay'].forEach(oid => {
+      document.getElementById(oid).classList.toggle('hidden', oid !== id);
+    });
+  }
+  function hideAllAuthOverlays() {
+    ['setupOverlay','loginOverlay','addAccountOverlay','lockOverlay'].forEach(oid => {
+      document.getElementById(oid).classList.add('hidden');
+    });
+  }
+  function showAuthError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function clearAuthError(id) {
+    const el = document.getElementById(id);
+    el.textContent = '';
+    el.classList.remove('show');
+  }
+
+  // --- Comptes utilisateurs (stockés en clair dans IndexedDB, hors données patients) ---
+  // Structure : [{ id, name, role, saltB64, pinHashB64, vaultSalt, wrappedKey }]
+  // wrappedKey = clé maîtresse de chiffrement enveloppée par le PIN de l'utilisateur
+  function loadAccounts() {
+    return Array.isArray(_idbCache[AUTH_ACCOUNTS_KEY]) ? _idbCache[AUTH_ACCOUNTS_KEY] : [];
+  }
+  function saveAccounts(accounts) {
+    _idbCache[AUTH_ACCOUNTS_KEY] = accounts;
+    idbPersistRaw(AUTH_ACCOUNTS_KEY, accounts);
+  }
+
+  // Vault : contient les bytes bruts de la clé maîtresse AES-256, eux-mêmes
+  // enveloppés par le mot de passe maître lors du premier setup.
+  // Chaque compte a aussi sa propre copie de la clé enveloppée par son PIN.
+  function loadVault() {
+    return _idbCache[AUTH_VAULT_KEY] || null;
+  }
+  function saveVault(vault) {
+    _idbCache[AUTH_VAULT_KEY] = vault;
+    idbPersistRaw(AUTH_VAULT_KEY, vault);
+  }
+
+  // Utilitaire : avatar initiales à partir d'un nom
+  function nameInitials(name) {
+    return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  // --- Déverrouillage : charge la clé de chiffrement depuis le vault d'un compte ---
+  async function unlockWithAccount(account, pinOrPassword) {
+    // Déchiffre la copie de la clé enveloppée par le PIN de l'utilisateur
+    let rawKeyBytes;
+    try {
+      rawKeyBytes = await unwrapEncryptionKeyWithPassword(account.wrappedKey, pinOrPassword, account.vaultSalt);
+    } catch (e) {
+      throw new Error('Mot de passe ou PIN incorrect.');
+    }
+    // Importe les bytes comme CryptoKey AES-GCM
+    _encryptionKey = await crypto.subtle.importKey('raw', rawKeyBytes, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+    // Charge et déchiffre toutes les données patients en mémoire
+    await idbLoadEncryptedData();
+    // Démarre la session
+    _currentSession = { userId: account.id, name: account.name, role: account.role };
+    try { sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(_currentSession)); } catch(e) {}
+    // Met à jour l'UI de session dans la sidebar
+    updateSessionUI();
+    // Démarre le timer de verrouillage automatique
+    startAutoLockTimer();
+    // Charge les données app
     loadData();
     renderTable();
     resetForm();
     const settings = loadClinicSettings();
     if (settings) applyClinicSettings(settings);
+    logAudit('LOGIN', 'session', account.id, { user: account.name, role: account.role });
+    hideAllAuthOverlays();
+  }
+
+  function updateSessionUI() {
+    const el = document.getElementById('sidebarSessionUser');
+    if (_currentSession && el) {
+      el.innerHTML = `Connecté&nbsp;: <b>${escapeHtml(_currentSession.name)}</b><br><span style="font-size:11px;opacity:0.7;">${escapeHtml(_currentSession.role)}</span>`;
+    }
+  }
+
+  // --- Verrouillage automatique ---
+  function resetAutoLockTimer() {
+    if (!_autoLockMinutes || _autoLockMinutes <= 0) return;
+    clearTimeout(_autoLockTimer);
+    _autoLockTimer = setTimeout(() => { lockSession(); }, _autoLockMinutes * 60 * 1000);
+  }
+
+  function startAutoLockTimer() {
+    if (!_autoLockMinutes || _autoLockMinutes <= 0) return;
+    ['mousemove','keydown','click','touchstart','scroll'].forEach(ev => {
+      document.addEventListener(ev, resetAutoLockTimer, { passive: true });
+    });
+    resetAutoLockTimer();
+  }
+
+  function lockSession() {
+    if (!_currentSession) return;
+    // Efface la clé de chiffrement de la mémoire
+    _encryptionKey = null;
+    // Vide les données sensibles du cache mémoire
+    Object.values(STORAGE_KEYS).forEach(k => { _idbCache[k] = undefined; });
+    patients = [];
+    // BUG-07 FIX : Vider le tableau et la sidebar immédiatement (avant affichage écran de verrouillage)
+    // pour que les données patients ne restent pas visibles à l'écran après verrouillage.
+    const tbody = document.getElementById('patientTableBody');
+    if (tbody) tbody.innerHTML = '';
+    const emptyMsg = document.getElementById('emptyMsg');
+    if (emptyMsg) emptyMsg.style.display = 'none';
+    renderSidebarList();
+    updateStatCards();
+    // Affiche l'écran de verrouillage
+    document.getElementById('lockSub').textContent = `Session de ${_currentSession.name} — saisissez votre code`;
+    showAuthOverlay('lockOverlay');
+    clearTimeout(_autoLockTimer);
+  }
+
+  document.getElementById('lockSessionBtn').addEventListener('click', lockSession);
+
+  document.getElementById('lockForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAuthError('lockError');
+    const password = document.getElementById('lockPassword').value;
+    if (!_currentSession) { showAuthOverlay('loginOverlay'); return; }
+    const accounts = loadAccounts();
+    const account = accounts.find(a => a.id === _currentSession.userId);
+    if (!account) { showAuthError('lockError', 'Compte introuvable.'); return; }
+    try {
+      await unlockWithAccount(account, password);
+      document.getElementById('lockPassword').value = '';
+    } catch(e) {
+      showAuthError('lockError', e.message || 'Code incorrect.');
+    }
+  });
+
+  document.getElementById('lockSwitchUser').addEventListener('click', () => {
+    _currentSession = null;
+    try { sessionStorage.removeItem(SESSION_STORAGE_KEY); } catch(e) {}
+    renderLoginScreen();
+    showAuthOverlay('loginOverlay');
+  });
+
+  // --- Écran de connexion : liste des comptes ---
+  function renderLoginScreen() {
+    const accounts = loadAccounts();
+    const listEl = document.getElementById('loginUserList');
+    const formUserField = document.getElementById('loginUserField');
+    const selectEl = document.getElementById('loginUserSelect');
+    listEl.innerHTML = '';
+    selectEl.innerHTML = '';
+
+    if (accounts.length === 0) {
+      listEl.innerHTML = '<p style="font-size:13px;color:var(--text-secondary);text-align:center;">Aucun compte trouvé.</p>';
+      return;
+    }
+
+    accounts.forEach(acc => {
+      const btn = document.createElement('button');
+      btn.className = 'auth-userbtn';
+      btn.type = 'button';
+      btn.innerHTML = `
+        <div class="auth-userbtn-avatar">${nameInitials(acc.name)}</div>
+        <div>
+          <div>${escapeHtml(acc.name)}</div>
+          <div class="auth-userbtn-role">${escapeHtml(acc.role)}</div>
+        </div>`;
+      btn.addEventListener('click', () => {
+        // BUG-03 FIX : Vider le select caché avant de le remplir pour éviter les doublons
+        // (le select est déjà partiellement rempli par la boucle principale ci-dessous)
+        selectEl.innerHTML = '';
+        accounts.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.id;
+          opt.textContent = a.name;
+          selectEl.appendChild(opt);
+        });
+        selectEl.value = acc.id;
+        formUserField.style.display = 'none';
+        document.getElementById('loginTitle').textContent = `Bonjour, ${acc.name.split(' ')[0]}`;
+        document.getElementById('loginSub').textContent = 'Saisissez votre code ou mot de passe';
+        listEl.style.display = 'none';
+        document.getElementById('newAccountLink').style.display = 'none';
+        document.getElementById('loginPassword').focus();
+      });
+      listEl.appendChild(btn);
+
+      const opt = document.createElement('option');
+      opt.value = acc.id;
+      opt.textContent = acc.name;
+      selectEl.appendChild(opt);
+    });
+
+    formUserField.style.display = accounts.length > 1 ? 'block' : 'none';
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAuthError('loginError');
+    const selectEl = document.getElementById('loginUserSelect');
+    const userId = selectEl.value;
+    const password = document.getElementById('loginPassword').value;
+    const accounts = loadAccounts();
+    const account = accounts.find(a => a.id === userId) || accounts[0];
+    if (!account) { showAuthError('loginError', 'Aucun compte trouvé.'); return; }
+    try {
+      await unlockWithAccount(account, password);
+      document.getElementById('loginPassword').value = '';
+    } catch(e) {
+      showAuthError('loginError', e.message || 'Mot de passe ou PIN incorrect.');
+    }
+  });
+
+  document.getElementById('addAccountLink').addEventListener('click', () => {
+    clearAuthError('addAccountError');
+    document.getElementById('addAccountForm').reset();
+    showAuthOverlay('addAccountOverlay');
+  });
+
+  document.getElementById('cancelAddAccount').addEventListener('click', () => {
+    showAuthOverlay('loginOverlay');
+  });
+
+  // --- Ajout d'un compte (nécessite le mot de passe maître pour accéder au vault) ---
+  document.getElementById('addAccountForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAuthError('addAccountError');
+    const name = document.getElementById('newAccName').value.trim();
+    const role = document.getElementById('newAccRole').value;
+    const pin = document.getElementById('newAccPin').value;
+    const masterPass = document.getElementById('masterPasswordForAdd').value;
+
+    const vault = loadVault();
+    if (!vault) { showAuthError('addAccountError', 'Aucun vault trouvé. Créez d\'abord un compte administrateur.'); return; }
+
+    try {
+      // Déchiffre la clé maîtresse avec le mot de passe maître
+      const rawKeyBytes = await unwrapEncryptionKeyWithPassword(vault.masterWrappedKey, masterPass, vault.masterSalt);
+      // Crée un sel unique pour ce compte et enveloppe la clé maîtresse avec son PIN
+      const vaultSalt = randomSaltB64(16);
+      const wrappedKey = await wrapEncryptionKeyWithPassword(rawKeyBytes, pin, vaultSalt);
+      // Crée le compte
+      const accounts = loadAccounts();
+      const newAccount = {
+        id: 'u_' + Date.now(),
+        name,
+        role,
+        vaultSalt,
+        wrappedKey
+      };
+      accounts.push(newAccount);
+      saveAccounts(accounts);
+      this.reset();
+      showAuthOverlay('loginOverlay');
+      renderLoginScreen();
+      showToast(`Compte créé pour ${name}`);
+    } catch(e) {
+      showAuthError('addAccountError', 'Mot de passe maître incorrect.');
+    }
+  });
+
+  // --- Ajout compte depuis paramètres (utilisateur déjà connecté) ---
+  function openAddAccountFromSettings() {
+    closeSettings();
+    clearAuthError('addAccountError');
+    document.getElementById('addAccountForm').reset();
+    document.getElementById('cancelAddAccount').onclick = () => {
+      openSettings();
+      renderAccountsInSettings();
+    };
+    showAuthOverlay('addAccountOverlay');
+  }
+
+  function renderAccountsInSettings() {
+    const accounts = loadAccounts();
+    const container = document.getElementById('accountsList');
+    if (!container) return;
+    if (accounts.length === 0) {
+      container.innerHTML = '<p style="font-size:12.5px;color:var(--text-secondary);">Aucun compte.</p>';
+      return;
+    }
+    container.innerHTML = accounts.map((acc, i) => `
+      <div class="account-row">
+        <div class="acc-avatar">${nameInitials(acc.name)}</div>
+        <div class="acc-info">
+          <div class="acc-name">${escapeHtml(acc.name)}</div>
+          <div class="acc-role">${escapeHtml(acc.role)}</div>
+        </div>
+        <div class="acc-actions">
+          ${accounts.length > 1 && (!_currentSession || acc.id !== _currentSession.userId) ?
+            `<button class="danger" onclick="deleteAccount('${acc.id}')">Supprimer</button>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
+  function deleteAccount(accId) {
+    if (!confirm('Supprimer ce compte utilisateur ? Cette action est irréversible.')) return;
+    const accounts = loadAccounts().filter(a => a.id !== accId);
+    if (accounts.length === 0) { alert('Impossible de supprimer le dernier compte.'); return; }
+    saveAccounts(accounts);
+    renderAccountsInSettings();
+    showToast('Compte supprimé.');
+  }
+
+  // --- Changement du mot de passe maître ---
+  // BUG-08 FIX : Remplace prompt() (incompatible Android WebView/PWA) par une modale HTML inline.
+  function openChangeMasterPassword() {
+    // Crée dynamiquement une modale de changement de mot de passe maître
+    const existingModal = document.getElementById('changeMasterPwModal');
+    if (existingModal) existingModal.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'changeMasterPwModal';
+    overlay.style.cssText = `position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.6);
+      display:flex;align-items:center;justify-content:center;padding:20px;`;
+    overlay.innerHTML = `
+      <div style="background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow-lg);
+                  width:100%;max-width:400px;padding:28px;position:relative;">
+        <button onclick="document.getElementById('changeMasterPwModal').remove()"
+          style="position:absolute;top:12px;right:12px;background:var(--neutral-bg);border:none;
+                 border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:15px;color:var(--text-secondary);">✕</button>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;color:var(--text-primary);">Changer le mot de passe maître</h3>
+        <div id="changeMasterPwError" style="display:none;background:var(--danger-bg);color:var(--danger);
+             font-size:12.5px;font-weight:500;border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:12px;"></div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;">Mot de passe maître actuel</label>
+          <input type="password" id="changeMasterOld" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;">Nouveau mot de passe (min. 8 caractères)</label>
+          <input type="password" id="changeMasterNew" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;">
+        </div>
+        <div style="margin-bottom:18px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;">Confirmer le nouveau mot de passe</label>
+          <input type="password" id="changeMasterConfirm" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;">
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button onclick="document.getElementById('changeMasterPwModal').remove()"
+            class="btn btn-secondary btn-sm">Annuler</button>
+          <button onclick="confirmChangeMasterPassword()" class="btn btn-primary btn-sm">Mettre à jour</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('changeMasterOld').focus();
+  }
+
+  async function confirmChangeMasterPassword() {
+    const old = document.getElementById('changeMasterOld').value;
+    const newPw = document.getElementById('changeMasterNew').value;
+    const confirm2 = document.getElementById('changeMasterConfirm').value;
+    const errEl = document.getElementById('changeMasterPwError');
+    const showErr = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
+
+    if (!old) { showErr('Veuillez saisir le mot de passe maître actuel.'); return; }
+    if (!newPw || newPw.length < 8) { showErr('Nouveau mot de passe trop court (min. 8 caractères).'); return; }
+    if (newPw !== confirm2) { showErr('Les mots de passe ne correspondent pas.'); return; }
+
+    const vault = loadVault();
+    if (!vault) { showErr('Aucun vault trouvé.'); return; }
+
+    try {
+      const rawKeyBytes = await unwrapEncryptionKeyWithPassword(vault.masterWrappedKey, old, vault.masterSalt);
+      const newSalt = randomSaltB64(16);
+      const newWrappedKey = await wrapEncryptionKeyWithPassword(rawKeyBytes, newPw, newSalt);
+      saveVault({ masterSalt: newSalt, masterWrappedKey: newWrappedKey });
+      document.getElementById('changeMasterPwModal').remove();
+      showToast('Mot de passe maître mis à jour.');
+      logAudit('CHANGE_MASTER_PASSWORD', 'security', 'vault', {});
+    } catch (e) {
+      showErr('Mot de passe maître actuel incorrect.');
+    }
+  }
+
+  // --- Paramètres : auto-lock ---
+  function loadAutoLockSetting() {
+    const settings = loadClinicSettings() || {};
+    return parseInt(settings.autoLockMinutes, 10) || 15;
+  }
+
+  // Surcharge openSettings pour peupler la section comptes + autolock
+  function openSettings() {
+    _coreOpenSettings();
+    renderAccountsInSettings();
+    const settings = loadClinicSettings() || {};
+    const alSel = document.getElementById('settingAutoLockMinutes');
+    if (alSel) alSel.value = String(settings.autoLockMinutes || 15);
+  }
+
+  // Surcharge saveSettings pour persister autoLockMinutes
+  function saveSettings() {
+    const alSel = document.getElementById('settingAutoLockMinutes');
+    if (alSel) {
+      const settings = loadClinicSettings() || {};
+      settings.autoLockMinutes = parseInt(alSel.value, 10) || 0;
+      saveJson(CLINIC_SETTINGS_KEY_NAME, settings);
+      _autoLockMinutes = settings.autoLockMinutes;
+    }
+    _coreSaveSettings();
+  }
+
+  // --- SETUP initial (premier lancement : aucun compte) ---
+  document.getElementById('setupForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAuthError('setupError');
+    const name = document.getElementById('setupName').value.trim();
+    const role = document.getElementById('setupRole').value;
+    const pw = document.getElementById('setupPassword').value;
+    const pw2 = document.getElementById('setupPasswordConfirm').value;
+
+    if (pw !== pw2) { showAuthError('setupError', 'Les mots de passe ne correspondent pas.'); return; }
+    if (pw.length < 8) { showAuthError('setupError', 'Mot de passe trop court (min. 8 caractères).'); return; }
+
+    try {
+      // 1. Génère la clé maîtresse AES-256 aléatoire
+      const masterKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+      const rawKeyBytes = new Uint8Array(await crypto.subtle.exportKey('raw', masterKey));
+
+      // 2. Enveloppe la clé maîtresse avec le mot de passe maître (pour le vault)
+      const masterSalt = randomSaltB64(16);
+      const masterWrappedKey = await wrapEncryptionKeyWithPassword(rawKeyBytes, pw, masterSalt);
+      saveVault({ masterSalt, masterWrappedKey });
+
+      // 3. Crée le premier compte admin avec sa propre copie de la clé enveloppée par son mot de passe
+      const vaultSalt = randomSaltB64(16);
+      const wrappedKey = await wrapEncryptionKeyWithPassword(rawKeyBytes, pw, vaultSalt);
+      const firstAccount = { id: 'u_' + Date.now(), name, role, vaultSalt, wrappedKey };
+      saveAccounts([firstAccount]);
+
+      // 4. Importe la clé en mémoire et démarre la session
+      _encryptionKey = masterKey;
+      await unlockWithAccount(firstAccount, pw);
+      this.reset();
+    } catch(err) {
+      showAuthError('setupError', 'Erreur lors de la création : ' + err.message);
+    }
+  });
+
+  // ===================================================================
+  // INIT PRINCIPAL
+  // ===================================================================
+  idbPreload().then(() => {
+    // Applique les paramètres clinique (logo, nom, couleurs) — données non chiffrées
+    const settings = loadClinicSettings();
+    if (settings) applyClinicSettings(settings);
+    _autoLockMinutes = loadAutoLockSetting();
+
+    const accounts = loadAccounts();
+
+    if (accounts.length === 0) {
+      // Premier lancement : affiche l'écran de configuration initiale
+      showAuthOverlay('setupOverlay');
+      return;
+    }
+
+    // Tentative de reprise de session (sessionStorage) — efface si onglet fermé
+    let resumedSession = null;
+    try {
+      const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      resumedSession = raw ? JSON.parse(raw) : null;
+    } catch(e) {}
+
+    if (resumedSession) {
+      // Session trouvée mais clé crypto perdue (rechargement page) → écran verrou
+      _currentSession = resumedSession;
+      document.getElementById('lockSub').textContent = `Session de ${resumedSession.name} — saisissez votre code`;
+      showAuthOverlay('lockOverlay');
+    } else {
+      // Pas de session : écran de connexion
+      renderLoginScreen();
+      showAuthOverlay('loginOverlay');
+    }
+
+    resetForm();
   });
 </script>
 
