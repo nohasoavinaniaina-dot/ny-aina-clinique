@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ny-aina-clinique-v11';
+const CACHE_NAME = 'ny-aina-clinique-v13';
 const BASE = '/ny-aina-clinique';
 const ASSETS = [
   BASE + '/',

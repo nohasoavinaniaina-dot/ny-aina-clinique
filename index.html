@@ -794,7 +794,107 @@
   .vitals-chart-card .vc-point.lvl-normal,
   .vitals-chart-card .vc-point.lvl-info { fill: var(--primary); }
 
-  /* ===== INTERPRETATION VITALS ===== */
+  /* ===== SÉJOURS (RÉADMISSION) ===== */
+  .sejour-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px;
+    background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd;
+    white-space: nowrap;
+  }
+  .sejour-badge.actif { background: #ecfdf5; color: #15803d; border-color: #a7f3d0; }
+  .sejour-badge.sorti { background: var(--neutral-bg); color: var(--neutral); border-color: var(--border-strong); }
+
+  .sejours-nav {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+  .sejours-nav-label {
+    font-size: 11.5px; font-weight: 700; color: #0369a1;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    flex-shrink: 0; margin-right: 4px;
+  }
+  .sejour-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 100px;
+    font-size: 12.5px; font-weight: 600;
+    border: 1.5px solid transparent;
+    cursor: pointer; background: white;
+    color: var(--text-secondary); border-color: var(--border-strong);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .sejour-pill:hover { border-color: #0369a1; color: #0369a1; }
+  .sejour-pill.active { background: #0369a1; color: white; border-color: #0369a1; }
+  .sejour-pill.active-sejour { border-color: #15803d; color: #15803d; }
+  .sejour-pill.active.active-sejour { background: #15803d; color: white; border-color: #15803d; }
+  .sejour-pill svg { width: 13px; height: 13px; }
+
+  .readmit-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef9c3 100%);
+    border: 1.5px solid #fde68a;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+  .readmit-banner-text { font-size: 13px; font-weight: 600; color: #92400e; }
+  .readmit-banner-sub { font-size: 12px; color: #b45309; margin-top: 2px; }
+
+  /* ===== DOCUMENTS PARACLINIQUES ===== */
+  .doc-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow 0.15s, transform 0.15s;
+    position: relative;
+  }
+  .doc-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .doc-card-thumb {
+    width: 100%; aspect-ratio: 4/3;
+    border-radius: var(--radius-sm);
+    background: var(--neutral-bg);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
+  }
+  .doc-card-thumb img { width:100%; height:100%; object-fit:cover; cursor:zoom-in; }
+  .doc-card-thumb .doc-pdf-icon { font-size: 40px; }
+  .doc-card-cat {
+    display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; padding: 2px 8px; border-radius: 100px;
+    background: var(--primary-light); color: var(--primary);
+  }
+  .doc-card-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+  .doc-card-date { font-size: 11.5px; color: var(--text-muted); }
+  .doc-card-note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; border-top: 1px solid var(--border); padding-top: 8px; }
+  .doc-card-actions { display: flex; gap: 6px; margin-top: 2px; }
+  .doc-filter-btn { padding: 5px 12px; font-size: 12px; }
+  .doc-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  /* Lightbox */
+  #docLightbox {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(10,15,30,0.92); align-items: center; justify-content: center;
+  }
+  #docLightbox.open { display: flex; }
+  #docLightbox img { max-width: 92vw; max-height: 88vh; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+  #docLightboxClose {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+    color: white; border-radius: 50%; width: 38px; height: 38px;
+    font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
+
   .vital-tag {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 10.5px; font-weight: 700;
@@ -2042,10 +2142,17 @@
           <h2 id="dossierName">Dossier médical</h2>
           <div class="modal-sub" id="dossierSub"></div>
         </div>
-        <div style="display:flex; gap:8px; flex-shrink:0;">
+        <div style="display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end;">
           <button class="icon-btn" title="Modifier les informations du dossier" onclick="editPatientFromDossier()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
+          <button class="icon-btn" title="Exporter le dossier en JSON" onclick="exportDossierJSON()" style="color:var(--success);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button class="icon-btn" title="Importer un dossier JSON" onclick="document.getElementById('importDossierInput').click()" style="color:var(--primary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </button>
+          <input type="file" id="importDossierInput" accept=".json,application/json" style="display:none;" onchange="importDossierJSON(event)">
           <button class="icon-btn" title="Imprimer / Exporter PDF" onclick="printDossier()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           </button>
@@ -2064,10 +2171,80 @@
           <button class="clinical-tab" data-tab="suivi">Suivi journalier</button>
           <button class="clinical-tab" data-tab="traitements">Traitements</button>
           <button class="clinical-tab" data-tab="evolution">Évolution / Historique</button>
+          <button class="clinical-tab" data-tab="documents">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline;margin-right:4px;vertical-align:-2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+            Documents / Paraclinique
+          </button>
+          <button class="clinical-tab" data-tab="sejours" id="sejoursTab" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline;margin-right:4px;vertical-align:-2px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Séjours
+            <span id="sejoursTabCount" style="margin-left:4px;background:rgba(3,105,161,0.15);color:#0369a1;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:100px;"></span>
+          </button>
         </div>
+
+        <!-- Barre navigation séjours (visible si ≥ 2 séjours) -->
+        <div id="sejoursNavBar" style="display:none;"></div>
 
         <!-- ===== ANTÉCÉDENTS ===== -->
         <div class="clinical-pane active" data-pane="antecedents">
+          <!-- HISTOIRE DE LA MALADIE / ANAMNÈSE -->
+          <div class="clinical-section" style="background:linear-gradient(135deg,#f0f9ff 0%,#e6f3f7 100%);border:1.5px solid var(--primary-light);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px;">
+            <div class="dossier-section-title" style="color:var(--primary);margin-bottom:10px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Histoire de la maladie / Anamnèse
+              <span class="saved-tag" id="savedAnamnese">✓ Enregistré</span>
+            </div>
+            <div style="display:grid;gap:12px;">
+              <div class="field-inline">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Motif de consultation / Plainte principale</label>
+                <textarea id="anamMotif" placeholder="Décrivez la plainte principale du patient (ex. douleur thoracique depuis 3 jours, fièvre, dyspnée...)" style="min-height:56px;"></textarea>
+              </div>
+              <div class="field-inline">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Histoire de la maladie actuelle</label>
+                <textarea id="anamHistoire" placeholder="Racontez l'évolution chronologique des symptômes : début, mode d'installation, caractère (continu/intermittent), facteurs déclenchants/soulageants, symptômes associés, traitements déjà essayés, consultations antérieures pour ce motif..." style="min-height:100px;"></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
+                <div class="field-inline">
+                  <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Début des symptômes</label>
+                  <input type="text" id="anamDebut" placeholder="ex. il y a 5 jours, 10/06/2026...">
+                </div>
+                <div class="field-inline">
+                  <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Mode d'installation</label>
+                  <select id="anamMode">
+                    <option value="">— choisir —</option>
+                    <option value="Brutal">Brutal (soudain)</option>
+                    <option value="Progressif">Progressif</option>
+                    <option value="Insidieux">Insidieux (lent)</option>
+                    <option value="Par crises">Par crises / Intermittent</option>
+                  </select>
+                </div>
+                <div class="field-inline">
+                  <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Évolution</label>
+                  <select id="anamEvolution">
+                    <option value="">— choisir —</option>
+                    <option value="Stable">Stable</option>
+                    <option value="Amélioration">En amélioration</option>
+                    <option value="Aggravation">En aggravation</option>
+                    <option value="Fluctuante">Fluctuante</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-inline">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Contexte / Facteurs de risque / Mode de vie</label>
+                <textarea id="anamContexte" placeholder="Tabac, alcool, expositions professionnelles, voyage récent, contact malade, situation sociale, traitement habituel à domicile..." style="min-height:56px;"></textarea>
+              </div>
+              <div class="field-inline">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Hypothèse(s) diagnostique(s) initiale(s)</label>
+                <textarea id="anamHypothese" placeholder="Première impression diagnostique, diagnostics différentiels à éliminer..." style="min-height:56px;"></textarea>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm save-section-btn" onclick="saveAnamnese()" style="margin-top:14px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Enregistrer l'anamnèse
+            </button>
+          </div>
+          <!-- /HISTOIRE DE LA MALADIE -->
+
           <div class="clinical-section">
             <div class="dossier-section-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -2497,11 +2674,192 @@
           </div>
           <div class="timeline" id="dossierTimeline"></div>
         </div>
+        <!-- ===== DOCUMENTS / PARACLINIQUE ===== -->
+        <div class="clinical-pane" data-pane="documents">
+          <div class="dossier-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importer un document paraclinique
+          </div>
+
+          <!-- Zone d'import -->
+          <div id="docImportZone" style="border:2px dashed var(--border-strong);border-radius:var(--radius);padding:28px 20px;text-align:center;background:var(--neutral-bg);margin-bottom:20px;cursor:pointer;transition:border-color 0.2s,background 0.2s;"
+               ondragover="event.preventDefault();this.style.borderColor='var(--primary)';this.style.background='var(--primary-light)';"
+               ondragleave="this.style.borderColor='var(--border-strong)';this.style.background='var(--neutral-bg)';"
+               ondrop="handleDocDrop(event)" onclick="document.getElementById('docFileInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:40px;height:40px;color:var(--primary);margin:0 auto 10px;display:block;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="13" x2="12" y2="19"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
+            <p style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">Glisser-déposer ou cliquer pour importer</p>
+            <p style="font-size:12.5px;color:var(--text-secondary);">PDF, images (JPG, PNG, HEIC) — Ordonnances, ECG, Radio, Biologie, Compte-rendus...</p>
+          </div>
+          <input type="file" id="docFileInput" accept=".pdf,image/*" multiple style="display:none;" onchange="handleDocFileSelect(event)">
+
+          <!-- Boutons d'action rapide -->
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px;">
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('docFileInput').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Importer PDF / Image
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="openCameraCapture()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Prendre une photo
+            </button>
+            <input type="file" id="docCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleDocFileSelect(event)">
+          </div>
+
+          <!-- Métadonnées du document à ajouter -->
+          <div id="docMetaForm" style="display:none;background:var(--primary-light);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
+            <div class="dossier-section-title" style="margin-bottom:12px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Informations sur le document sélectionné
+            </div>
+            <div id="docPreviewThumb" style="margin-bottom:12px;"></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px;">
+              <div class="field-inline">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Catégorie</label>
+                <select id="docCategorie">
+                  <option value="Biologie">🔬 Biologie / Labo</option>
+                  <option value="Imagerie">🩻 Imagerie (Radio, Scanner, IRM, Echo)</option>
+                  <option value="ECG">❤️ ECG / Cardiologie</option>
+                  <option value="Image clinique">📷 Image clinique</option>
+                  <option value="Compte-rendu">📋 Compte-rendu opératoire / Consultation</option>
+                  <option value="Ordonnance">💊 Ordonnance</option>
+                  <option value="Autre">📎 Autre</option>
+                </select>
+              </div>
+              <div class="field-inline">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Date du document</label>
+                <input type="date" id="docDate">
+              </div>
+            </div>
+            <div class="field-inline" style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Titre / Description</label>
+              <input type="text" id="docTitre" placeholder="ex. NFS du 15/06, Radio thorax, Écho abdominale...">
+            </div>
+            <div class="field-inline" style="margin-bottom:14px;">
+              <label style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;display:block;">Résultat / Interprétation (optionnel)</label>
+              <textarea id="docNote" placeholder="Notez les résultats clés, l'interprétation ou les valeurs anormales à signaler..." style="min-height:64px;"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" onclick="confirmAddDocument()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Enregistrer le document
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="cancelDocMeta()">Annuler</button>
+            </div>
+          </div>
+
+          <!-- Liste des documents enregistrés -->
+          <div class="dossier-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            Documents enregistrés
+          </div>
+
+          <!-- Filtres par catégorie -->
+          <div id="docFilterBar" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+            <button class="btn btn-secondary btn-sm doc-filter-btn active" data-filter="all" onclick="filterDocuments('all',this)">Tous</button>
+            <button class="btn btn-secondary btn-sm doc-filter-btn" data-filter="Biologie" onclick="filterDocuments('Biologie',this)">🔬 Biologie</button>
+            <button class="btn btn-secondary btn-sm doc-filter-btn" data-filter="Imagerie" onclick="filterDocuments('Imagerie',this)">🩻 Imagerie</button>
+            <button class="btn btn-secondary btn-sm doc-filter-btn" data-filter="ECG" onclick="filterDocuments('ECG',this)">❤️ ECG</button>
+            <button class="btn btn-secondary btn-sm doc-filter-btn" data-filter="Image clinique" onclick="filterDocuments('Image clinique',this)">📷 Image clinique</button>
+            <button class="btn btn-secondary btn-sm doc-filter-btn" data-filter="Compte-rendu" onclick="filterDocuments('Compte-rendu',this)">📋 CR</button>
+          </div>
+
+          <div id="documentsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;"></div>
+          <div class="timeline-empty" id="documentsEmpty" style="display:none;">Aucun document paraclinique enregistré pour ce patient.</div>
+        </div>
+        <!-- /DOCUMENTS PARACLINIQUE -->
+
+        <!-- ===== SÉJOURS ===== -->
+        <div class="clinical-pane" data-pane="sejours">
+          <div class="dossier-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Historique des séjours
+          </div>
+          <div id="sejoursList"></div>
+        </div>
+        <!-- /SÉJOURS -->
+
       </div>
     </div>
   </div>
+  <!-- ===== LIGHTBOX IMAGE ===== -->
+  <div id="docLightbox" onclick="closeLightbox()">
+    <button id="docLightboxClose" onclick="closeLightbox()">✕</button>
+    <img id="docLightboxImg" src="" alt="Document paraclinique">
+  </div>
 
-  <!-- ===== MODAL CONFIRMATION SUPPRESSION PATIENT ===== -->
+  <!-- ===== MODALE RÉADMISSION ===== -->
+  <div class="modal-overlay" id="readmitOverlay" style="z-index:1200;">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-header">
+        <div>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;display:inline;margin-right:8px;vertical-align:-3px;color:#0369a1;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Réadmission du patient
+          </h2>
+          <div class="modal-sub" id="readmitSub">Nouveau séjour — antécédents et identité conservés</div>
+        </div>
+        <button class="modal-close" onclick="closeReadmitModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Résumé dernier séjour -->
+        <div id="readmitLastSejour" style="background:var(--neutral-bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:20px;font-size:12.5px;color:var(--text-secondary);"></div>
+
+        <div id="readmitError" style="display:none;background:var(--danger-bg);color:var(--danger);font-size:12.5px;font-weight:500;border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:14px;"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div class="field">
+            <label>Date d'admission <span class="required">*</span></label>
+            <input type="date" id="readmitDate">
+          </div>
+          <div class="field">
+            <label>Chambre <span class="required">*</span></label>
+            <input type="text" id="readmitChambre" placeholder="ex. 12A, Urgences...">
+          </div>
+          <div class="field">
+            <label>Médecin référent</label>
+            <input type="text" id="readmitMedecin" placeholder="ex. Dr. Andriana">
+          </div>
+          <div class="field">
+            <label>Statut initial</label>
+            <select id="readmitStatut">
+              <option value="Hospitalisé">Hospitalisé</option>
+              <option value="Stable">Stable</option>
+              <option value="Critique">Critique</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Diagnostic / Motif d'admission <span class="required">*</span></label>
+          <input type="text" id="readmitDiagnostic" placeholder="ex. Décompensation cardiaque, Pneumopathie infectieuse...">
+        </div>
+
+        <div class="field" style="margin-bottom:6px;">
+          <label>Lien avec le séjour précédent</label>
+          <select id="readmitLien">
+            <option value="Même pathologie">♻️ Même pathologie (récidive / décompensation)</option>
+            <option value="Complication">⚠️ Complication du séjour précédent</option>
+            <option value="Pathologie différente">🔄 Pathologie différente (nouvelle affection)</option>
+            <option value="Non précisé">— Non précisé</option>
+          </select>
+        </div>
+        <p style="font-size:11.5px;color:var(--text-secondary);margin-bottom:20px;">Les antécédents, allergies et données d'identité du patient sont automatiquement repris.</p>
+
+        <div class="form-actions">
+          <button class="btn btn-secondary" type="button" onclick="closeReadmitModal()">Annuler</button>
+          <button class="btn btn-primary" type="button" onclick="confirmReadmit()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Créer le nouveau séjour
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /MODALE RÉADMISSION -->
+
   <div class="modal-overlay" id="deleteConfirmOverlay" style="z-index: 1200;">
     <div class="modal" style="max-width: 460px;">
       <div class="modal-header">
@@ -2590,6 +2948,7 @@
     patients: 'clinique_patients',
     dossiers: 'clinique_dossiers',
     clinical: 'clinique_clinical',
+    sejours:  'clinique_sejours',   // NEW v13 — séjours par patient
     auditLog: 'clinique_audit_log'
   };
   const CLINIC_SETTINGS_KEY_NAME = 'meditrack_clinic_settings';
@@ -2609,6 +2968,7 @@
     STORAGE_KEYS.patients,
     STORAGE_KEYS.dossiers,
     STORAGE_KEYS.clinical,
+    STORAGE_KEYS.sejours,
     STORAGE_KEYS.auditLog
   ]);
 
@@ -3192,6 +3552,9 @@
           <button class="icon-btn" title="Dossier médical" onclick="openDossier('${p.id}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
           </button>
+          ${p.statut === 'Sorti' ? `<button class="icon-btn" title="Réadmettre ce patient" onclick="openReadmitModal('${p.id}')" style="color:#0369a1;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>` : ''}
           <button class="icon-btn" title="Modifier" onclick="editPatient('${p.id}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
           </button>
@@ -3983,13 +4346,30 @@
     const p = patients.find(x => x.id === id);
     if (!p) return;
     currentDossierId = id;
+    currentSejourId = null; // Toujours ouvrir sur le séjour actif
+
+    // Migration silencieuse : crée S1 si besoin
+    migratePatientToSejours(id);
 
     document.getElementById('dossierName').textContent = 'Dossier médical — ' + p.nom;
     const hospDay = getHospitalizationDay(p.dateAdmission);
+    const sejours = getPatientSejours(id);
+    const nbSejours = sejours.length;
+
     const hospDayBadge = (p.statut !== 'Sorti' && hospDay !== null)
       ? `<span class="hosp-day-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>J${hospDay} d'hospitalisation</span>`
       : '';
-    document.getElementById('dossierSub').innerHTML = `Chambre ${escapeHtml(p.chambre)} · Admis le ${formatDate(p.dateAdmission)}${hospDayBadge}`;
+    const sejourBadge = nbSejours > 1
+      ? `<span class="sejour-badge" style="margin-left:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          ${nbSejours} séjours
+        </span>`
+      : '';
+
+    document.getElementById('dossierSub').innerHTML = `
+      ${escapeHtml(p.numeroDossier || '-')}
+      · Chambre ${escapeHtml(p.chambre)} · Admis le ${formatDate(p.dateAdmission)}
+      ${hospDayBadge}${sejourBadge}`;
 
     document.getElementById('dossierSummary').innerHTML = `
       <div class="item"><div class="k">N° dossier</div><div class="v">${escapeHtml(p.numeroDossier || '-')}</div></div>
@@ -3999,7 +4379,7 @@
       <div class="item"><div class="k">Contact d'urgence</div><div class="v">${escapeHtml(p.contactUrgence || '-')}</div></div>
       <div class="item"><div class="k">Assurance / Payeur</div><div class="v">${escapeHtml(p.assurance || '-')}</div></div>
       <div class="item"><div class="k">Chambre</div><div class="v">${escapeHtml(p.chambre)}</div></div>
-      <div class="item"><div class="k">Statut</div><div class="v">${escapeHtml(p.statut)}</div></div>
+      <div class="item"><div class="k">Statut</div><div class="v"><span class="badge ${badgeClass(p.statut)}">${escapeHtml(p.statut)}</span>${nbSejours > 1 ? `<span style="margin-left:8px;font-size:11.5px;color:var(--text-muted);">Séjour ${nbSejours}</span>` : ''}</div></div>
       <div class="item"><div class="k">Médecin référent</div><div class="v">${escapeHtml(p.medecin || '-')}</div></div>
       <div class="item" style="grid-column: 1 / -1;"><div class="k">Diagnostic initial</div><div class="v" style="font-weight:500;">${escapeHtml(p.diagnostic || '-')}</div></div>
     `;
@@ -4008,25 +4388,34 @@
     if (p.medecin) document.getElementById('entryAuthor').value = p.medecin;
 
     document.getElementById('suiviForm').reset();
-    const _today = new Date(); document.getElementById('suiviDate').value = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0') + '-' + String(_today.getDate()).padStart(2,'0'); // BUG-06 FIX: évite le décalage UTC/valueAsDate
+    const _today = new Date();
+    document.getElementById('suiviDate').value = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0') + '-' + String(_today.getDate()).padStart(2,'0');
     if (p.medecin) document.getElementById('suiviAuthor').value = p.medecin;
 
     // Reset to first tab
     document.querySelectorAll('.clinical-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
     document.querySelectorAll('.clinical-pane').forEach((pane, i) => pane.classList.toggle('active', i === 0));
 
+    // Render séjours nav + panes
+    renderSejoursNavBar(id);
     renderAntecedents();
     renderVitals();
     renderExamen();
     renderSuiviTimeline();
     renderPrescriptions();
     renderTimeline();
+    const clinKey = getCurrentClinicalKey();
+    loadAnamneseIntoForm(clinKey);
+    renderDocuments(clinKey);
+    renderSejoursList(id);
+
     document.getElementById('dossierOverlay').classList.add('open');
   }
 
   function closeDossier() {
     document.getElementById('dossierOverlay').classList.remove('open');
     currentDossierId = null;
+    currentSejourId = null;
   }
 
   function editPatientFromDossier() {
@@ -4044,6 +4433,9 @@
     document.querySelectorAll('.clinical-tab').forEach(t => t.classList.toggle('active', t === btn));
     document.querySelectorAll('.clinical-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === tab));
     if (tab === 'traitements') renderAllergyBanner();
+    if (tab === 'sejours') renderSejoursList(currentDossierId);
+    if (tab === 'documents') renderDocuments(getCurrentClinicalKey());
+    if (tab === 'antecedents') loadAnamneseIntoForm(getCurrentClinicalKey());
   });
 
   // ===== ANTÉCÉDENTS =====
@@ -4051,7 +4443,7 @@
   const ANT_INPUTS = { medicaux: 'newAntMedical', chirurgicaux: 'newAntChirurgical', allergies: 'newAntAllergie', familiaux: 'newAntFamilial' };
 
   function renderAntecedents() {
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     Object.keys(ANT_LABELS).forEach(cat => {
       const container = document.getElementById(ANT_LABELS[cat]);
       const items = rec.antecedents[cat] || [];
@@ -4063,9 +4455,7 @@
         <span class="tag-pill">${escapeHtml(item)}<button title="Supprimer" onclick="removeAntecedent('${cat}', ${idx})">×</button></span>
       `).join('');
     });
-    // Synchronise la bannière si on est sur l'onglet traitements ou pour la mise à jour globale
     renderAllergyBanner();
-    // Vérifie en temps réel si une prescription en cours serait concernée
     checkRxAllergyMatch();
   }
 
@@ -4073,17 +4463,19 @@
     const input = document.getElementById(ANT_INPUTS[cat]);
     const val = input.value.trim();
     if (!val) return;
-    const rec = getClinicalRecord(currentDossierId);
+    const key = getCurrentClinicalKey();
+    const rec = getClinicalRecord(key);
     rec.antecedents[cat].push(val);
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(key, rec);
     input.value = '';
     renderAntecedents();
   }
 
   function removeAntecedent(cat, idx) {
-    const rec = getClinicalRecord(currentDossierId);
+    const key = getCurrentClinicalKey();
+    const rec = getClinicalRecord(key);
     rec.antecedents[cat].splice(idx, 1);
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(key, rec);
     renderAntecedents();
   }
 
@@ -4117,9 +4509,9 @@
         return;
       }
     }
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     rec.vitals.push({ id: 'v_' + Date.now(), date: new Date().toISOString(), ...vals });
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(getCurrentClinicalKey(), rec);
     ['vTAS','vTAD','vFC','vFR','vTemp','vSpO2','vGlyc','vPoids'].forEach(f => document.getElementById(f).value = '');
     document.getElementById('vSpO2O2').value = 'non';
     ['vGlasgowY','vGlasgowV','vGlasgowM'].forEach(f => document.getElementById(f).value = '');
@@ -4548,9 +4940,9 @@
 
   function deleteVitals(vid) {
     if (!confirm('Supprimer cette mesure ?')) return;
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     rec.vitals = rec.vitals.filter(v => v.id !== vid);
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(getCurrentClinicalKey(), rec);
     renderVitals();
   }
 
@@ -4713,7 +5105,7 @@
   }
 
   function renderVitals() {
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     const sorted = rec.vitals.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const tbody = document.getElementById('vitalsTableBody');
     document.getElementById('vitalsEmpty').style.display = sorted.length === 0 ? 'block' : 'none';
@@ -4777,19 +5169,19 @@
   const EXAMEN_FIELDS = ['exMotif','exEtatGeneral','exCardio','exPulmo','exAbdo','exNeuro','exAutres'];
 
   function renderExamen() {
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     EXAMEN_FIELDS.forEach(f => {
       document.getElementById(f).value = rec.examen[f] || '';
     });
   }
 
   function saveExamen() {
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     EXAMEN_FIELDS.forEach(f => {
       rec.examen[f] = document.getElementById(f).value.trim();
     });
     rec.examen.lastUpdated = new Date().toISOString();
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(getCurrentClinicalKey(), rec);
     const tag = document.getElementById('savedExamen');
     tag.classList.add('show');
     setTimeout(() => tag.classList.remove('show'), 2000);
@@ -4851,7 +5243,7 @@
   // Retourne la liste des allergènes du patient courant
   function getCurrentAllergies() {
     if (!currentDossierId) return [];
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     return (rec.antecedents && rec.antecedents.allergies) ? rec.antecedents.allergies : [];
   }
 
@@ -4970,7 +5362,7 @@
   }
 
   function _commitPrescription(data, overrideReason) {
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     const rx = {
       id: 'rx_' + Date.now(),
       med: data.med,
@@ -4987,7 +5379,7 @@
       allergyOverride: overrideReason || null
     };
     rec.prescriptions.push(rx);
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(getCurrentClinicalKey(), rec);
 
     // Trace dans l'audit si passage en force
     if (overrideReason) {
@@ -5048,24 +5440,24 @@
   });
 
   function togglePrescriptionStatus(rxId) {
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     const rx = rec.prescriptions.find(r => r.id === rxId);
     if (!rx) return;
     rx.statut = rx.statut === 'Actif' ? 'Arrêté' : 'Actif';
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(getCurrentClinicalKey(), rec);
     renderPrescriptions();
   }
 
   function deletePrescription(rxId) {
     if (!confirm('Supprimer cette prescription ?')) return;
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     rec.prescriptions = rec.prescriptions.filter(r => r.id !== rxId);
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(getCurrentClinicalKey(), rec);
     renderPrescriptions();
   }
 
   function renderPrescriptions() {
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     const sorted = rec.prescriptions.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const container = document.getElementById('prescriptionList');
     document.getElementById('prescriptionEmpty').style.display = sorted.length === 0 ? 'block' : 'none';
@@ -5182,7 +5574,7 @@ ${bodyHtml}
   function printDossier() {
     const p = patients.find(x => x.id === currentDossierId);
     if (!p) return;
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     const dossiers = loadDossiers();
     const entries = (dossiers[currentDossierId] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const vitalsSorted = rec.vitals.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -5347,7 +5739,7 @@ ${bodyHtml}
   function printSurveillanceSheet() {
     const p = patients.find(x => x.id === currentDossierId);
     if (!p) return;
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     const nbDays = parseInt(document.getElementById('surveillancePeriode').value, 10) || 7;
     const hospDay = getHospitalizationDay(p.dateAdmission);
 
@@ -5462,11 +5854,12 @@ ${bodyHtml}
 
   function renderTimeline() {
     const dossiers = loadDossiers();
-    const entries = (dossiers[currentDossierId] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const key = getCurrentClinicalKey();
+    const entries = (dossiers[key] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const container = document.getElementById('dossierTimeline');
 
     if (entries.length === 0) {
-      container.innerHTML = '<div class="timeline-empty">Aucune entrée pour ce patient. Ajoutez la première observation ci-dessus.</div>';
+      container.innerHTML = '<div class="timeline-empty">Aucune entrée pour ce séjour. Ajoutez la première observation ci-dessus.</div>';
       return;
     }
 
@@ -5496,7 +5889,8 @@ ${bodyHtml}
   function deleteEntry(entryId) {
     if (!confirm('Supprimer cette entrée du dossier ?')) return;
     const dossiers = loadDossiers();
-    dossiers[currentDossierId] = (dossiers[currentDossierId] || []).filter(e => e.id !== entryId);
+    const key = getCurrentClinicalKey();
+    dossiers[key] = (dossiers[key] || []).filter(e => e.id !== entryId);
     saveDossiers(dossiers);
     renderTimeline();
   }
@@ -5507,9 +5901,10 @@ ${bodyHtml}
     if (!note) return;
 
     const dossiers = loadDossiers();
-    if (!dossiers[currentDossierId]) dossiers[currentDossierId] = [];
+    const key = getCurrentClinicalKey();
+    if (!dossiers[key]) dossiers[key] = [];
 
-    dossiers[currentDossierId].push({
+    dossiers[key].push({
       id: 'e_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
       type: document.getElementById('entryType').value,
       author: document.getElementById('entryAuthor').value.trim(),
@@ -5524,7 +5919,7 @@ ${bodyHtml}
 
   // ===== SUIVI JOURNALIER =====
   function renderSuiviTimeline() {
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     const p = patients.find(x => x.id === currentDossierId);
     const entries = (rec.suivi || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const container = document.getElementById('suiviTimeline');
@@ -5595,9 +5990,9 @@ ${bodyHtml}
 
   function deleteSuivi(suiviId) {
     if (!confirm('Supprimer cette note de suivi journalier ?')) return;
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     rec.suivi = (rec.suivi || []).filter(e => e.id !== suiviId);
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(getCurrentClinicalKey(), rec);
     renderSuiviTimeline();
   }
 
@@ -5609,7 +6004,7 @@ ${bodyHtml}
     const dateVal = document.getElementById('suiviDate').value;
     const noteDate = dateVal ? new Date(dateVal + 'T' + new Date().toTimeString().slice(0,8)) : new Date();
 
-    const rec = getClinicalRecord(currentDossierId);
+    const rec = getClinicalRecord(getCurrentClinicalKey());
     rec.suivi.push({
       id: 'sv_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
       author: document.getElementById('suiviAuthor').value.trim(),
@@ -5621,7 +6016,7 @@ ${bodyHtml}
       mobilite: document.getElementById('suiviMobilite').value,
       date: noteDate.toISOString()
     });
-    setClinicalRecord(currentDossierId, rec);
+    setClinicalRecord(getCurrentClinicalKey(), rec);
     document.getElementById('suiviNote').value = '';
     document.getElementById('suiviDouleur').value = '';
     document.getElementById('suiviDiurese').value = '';
@@ -5777,6 +6172,7 @@ ${bodyHtml}
     if (e.key === 'Escape') {
       // BUG 6 FIX: ESC closes quickVitalsOverlay first if open
       if (document.getElementById('quickVitalsOverlay').classList.contains('open')) { closeQuickVitals(); return; }
+      if (document.getElementById('readmitOverlay').classList.contains('open')) { closeReadmitModal(); return; }
       if (document.getElementById('settingsOverlay').classList.contains('open')) closeSettings();
       else closeDossier();
     }
@@ -6309,6 +6705,901 @@ ${bodyHtml}
       showAuthError('setupError', 'Erreur lors de la création : ' + err.message);
     }
   });
+
+  // ===================================================================
+  // ANAMNÈSE / HISTOIRE DE LA MALADIE
+  // ===================================================================
+  function saveAnamnese() {
+    const entry = getClinicalRecord(getCurrentClinicalKey());
+    entry.anamnese = {
+      motif:     document.getElementById('anamMotif').value.trim(),
+      histoire:  document.getElementById('anamHistoire').value.trim(),
+      debut:     document.getElementById('anamDebut').value.trim(),
+      mode:      document.getElementById('anamMode').value,
+      evolution: document.getElementById('anamEvolution').value,
+      contexte:  document.getElementById('anamContexte').value.trim(),
+      hypothese: document.getElementById('anamHypothese').value.trim(),
+    };
+    setClinicalRecord(getCurrentClinicalKey(), entry);
+    const tag = document.getElementById('savedAnamnese');
+    if (tag) { tag.classList.add('show'); setTimeout(() => tag.classList.remove('show'), 2200); }
+    showToast('Anamnèse enregistrée.');
+    logAudit('SAVE_ANAMNESE', 'clinical', currentDossierId, {});
+  }
+
+  function loadAnamneseIntoForm(patientId) {
+    const anamnese = (getClinicalRecord(patientId) || {}).anamnese || {};
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('anamMotif',    anamnese.motif);
+    set('anamHistoire', anamnese.histoire);
+    set('anamDebut',    anamnese.debut);
+    set('anamMode',     anamnese.mode);
+    set('anamEvolution',anamnese.evolution);
+    set('anamContexte', anamnese.contexte);
+    set('anamHypothese',anamnese.hypothese);
+  }
+
+  // ===================================================================
+  // DOCUMENTS PARACLINIQUES
+  // ===================================================================
+  let _pendingDocFile = null; // { dataUrl, name, type }
+  let _pendingImportPayload = null; // { patient, clinical } — set by openImportDossierConfirm
+
+  function openCameraCapture() {
+    document.getElementById('docCameraInput').click();
+  }
+
+  function handleDocDrop(event) {
+    event.preventDefault();
+    const zone = document.getElementById('docImportZone');
+    zone.style.borderColor = 'var(--border-strong)';
+    zone.style.background = 'var(--neutral-bg)';
+    const files = event.dataTransfer.files;
+    if (files && files.length > 0) processDocFile(files[0]);
+  }
+
+  function handleDocFileSelect(event) {
+    const files = event.target.files;
+    if (files && files.length > 0) processDocFile(files[0]);
+    event.target.value = '';
+  }
+
+  function processDocFile(file) {
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+    if (!allowed.some(t => file.type === t) && !file.type.startsWith('image/')) {
+      showToast('Format non supporté. Utilisez PDF ou image (JPG, PNG, HEIC).');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      _pendingDocFile = { dataUrl: e.target.result, name: file.name, type: file.type };
+      // Pre-fill date to today
+      document.getElementById('docDate').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('docTitre').value = file.name.replace(/\.[^/.]+$/, '');
+      document.getElementById('docNote').value = '';
+      // Show preview
+      const thumb = document.getElementById('docPreviewThumb');
+      if (file.type === 'application/pdf') {
+        thumb.innerHTML = `<div style="background:var(--danger-bg);border-radius:var(--radius-sm);padding:10px 14px;display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--danger);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          ${escapeHtml(file.name)}
+        </div>`;
+      } else {
+        thumb.innerHTML = `<img src="${e.target.result}" alt="Aperçu" style="max-height:180px;max-width:100%;border-radius:var(--radius-sm);border:1px solid var(--border);">`;
+      }
+      document.getElementById('docMetaForm').style.display = 'block';
+      document.getElementById('docMetaForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function cancelDocMeta() {
+    _pendingDocFile = null;
+    document.getElementById('docMetaForm').style.display = 'none';
+  }
+
+  function confirmAddDocument() {
+    if (!_pendingDocFile) return;
+    const entry = getClinicalRecord(getCurrentClinicalKey());
+    if (!entry.documents) entry.documents = [];
+    const doc = {
+      id: 'doc_' + Date.now(),
+      categorie: document.getElementById('docCategorie').value,
+      titre:     document.getElementById('docTitre').value.trim() || _pendingDocFile.name,
+      date:      document.getElementById('docDate').value,
+      note:      document.getElementById('docNote').value.trim(),
+      fileType:  _pendingDocFile.type,
+      dataUrl:   _pendingDocFile.dataUrl,
+      createdAt: new Date().toISOString(),
+    };
+    entry.documents.push(doc);
+    setClinicalRecord(getCurrentClinicalKey(), entry);
+    _pendingDocFile = null;
+    document.getElementById('docMetaForm').style.display = 'none';
+    renderDocuments(getCurrentClinicalKey());
+    showToast('Document enregistré.');
+    logAudit('ADD_DOCUMENT', 'clinical', currentDossierId, { categorie: doc.categorie, titre: doc.titre });
+  }
+
+  let _docFilter = 'all';
+
+  function filterDocuments(filter, btn) {
+    _docFilter = filter;
+    document.querySelectorAll('.doc-filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderDocuments(getCurrentClinicalKey());
+  }
+
+  function renderDocuments(patientId) {
+    const container = document.getElementById('documentsList');
+    const empty = document.getElementById('documentsEmpty');
+    if (!container) return;
+    let docs = ((getClinicalRecord(patientId) || {}).documents || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (_docFilter !== 'all') docs = docs.filter(d => d.categorie === _docFilter);
+
+    if (docs.length === 0) {
+      container.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    const catColors = {
+      'Biologie':       'background:#ecfdf5;color:#15803d;',
+      'Imagerie':       'background:#eff6ff;color:#1d4ed8;',
+      'ECG':            'background:#fef2f2;color:#b91c1c;',
+      'Image clinique': 'background:#fdf4ff;color:#7c3aed;',
+      'Compte-rendu':   'background:#fffbeb;color:#b45309;',
+      'Ordonnance':     'background:#f0f9ff;color:#0369a1;',
+      'Autre':          'background:var(--neutral-bg);color:var(--neutral);',
+    };
+
+    container.innerHTML = docs.map(doc => {
+      const catStyle = catColors[doc.categorie] || catColors['Autre'];
+      const isPDF = doc.fileType === 'application/pdf';
+      const thumb = isPDF
+        ? `<div class="doc-card-thumb" style="font-size:36px;color:var(--danger);">📄</div>`
+        : `<div class="doc-card-thumb"><img src="${doc.dataUrl}" alt="${escapeHtml(doc.titre)}" onclick="openLightbox('${doc.id}','${patientId}')"></div>`;
+
+      return `
+      <div class="doc-card" id="doccard_${doc.id}">
+        ${thumb}
+        <div>
+          <span class="doc-card-cat" style="${catStyle}">${escapeHtml(doc.categorie)}</span>
+        </div>
+        <div class="doc-card-title">${escapeHtml(doc.titre)}</div>
+        ${doc.date ? `<div class="doc-card-date">📅 ${formatDate ? formatDate(doc.date) : doc.date}</div>` : ''}
+        ${doc.note ? `<div class="doc-card-note">${escapeHtml(doc.note)}</div>` : ''}
+        <div class="doc-card-actions">
+          ${!isPDF ? `<button class="btn btn-secondary btn-sm" onclick="openLightbox('${doc.id}','${patientId}')" title="Agrandir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            Agrandir
+          </button>` : `<a class="btn btn-secondary btn-sm" href="${doc.dataUrl}" download="${escapeHtml(doc.titre)}.pdf" title="Télécharger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Télécharger
+          </a>`}
+          <button class="btn btn-secondary btn-sm" onclick="deleteDocument('${doc.id}','${patientId}')" title="Supprimer" style="color:var(--danger);border-color:var(--danger);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function openLightbox(docId, patientId) {
+    const docs = ((getClinicalRecord(patientId) || {}).documents || []);
+    const doc = docs.find(d => d.id === docId);
+    if (!doc || doc.fileType === 'application/pdf') return;
+    document.getElementById('docLightboxImg').src = doc.dataUrl;
+    document.getElementById('docLightbox').classList.add('open');
+  }
+
+  function closeLightbox() {
+    document.getElementById('docLightbox').classList.remove('open');
+  }
+
+  function deleteDocument(docId, patientId) {
+    if (!confirm('Supprimer ce document ? Cette action est irréversible.')) return;
+    const entry = getClinicalRecord(patientId);
+    entry.documents = (entry.documents || []).filter(d => d.id !== docId);
+    setClinicalRecord(patientId, entry);
+    renderDocuments(patientId);
+    showToast('Document supprimé.');
+    logAudit('DELETE_DOCUMENT', 'clinical', patientId, { docId });
+  }
+
+  // ===================================================================
+  // EXPORT / IMPORT DOSSIER JSON
+  // ===================================================================
+
+  function exportDossierJSON() {
+    if (!currentDossierId) return;
+    const p = patients.find(x => x.id === currentDossierId);
+    if (!p) return;
+    const clinical = getClinicalRecord(getCurrentClinicalKey());
+
+    const payload = {
+      _meditrack_version: 12,
+      _export_date: new Date().toISOString(),
+      _format: 'meditrack_dossier_v1',
+      patient: p,
+      clinical: clinical
+    };
+
+    // Retire les dataUrl (images/PDF) si trop lourdes — option exportée séparément
+    // Pour garder la portabilité, on les inclut (base64). L'utilisateur peut choisir.
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeName = (p.nom || 'patient').replace(/[^a-zA-Z0-9\-_]/g, '_');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `dossier_${safeName}_${p.numeroDossier || currentDossierId}_${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Dossier exporté en JSON.');
+    logAudit('EXPORT_DOSSIER_JSON', 'export', currentDossierId, { patient: p.nom });
+  }
+
+  function importDossierJSON(event) {
+    const file = event.target.files && event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      let payload;
+      try {
+        payload = JSON.parse(e.target.result);
+      } catch (err) {
+        showImportDossierError('Fichier JSON invalide ou corrompu. Vérifiez le fichier et réessayez.');
+        return;
+      }
+
+      // Validation du format
+      if (payload._format !== 'meditrack_dossier_v1' || !payload.patient || !payload.clinical) {
+        showImportDossierError('Ce fichier ne correspond pas au format MediTrack. Assurez-vous d\'utiliser un fichier exporté depuis MediTrack.');
+        return;
+      }
+
+      const importedPatient = payload.patient;
+      const importedClinical = payload.clinical;
+
+      // Déterminer si on importe dans le dossier courant ou crée un nouveau patient
+      const p = patients.find(x => x.id === currentDossierId);
+      const isSamePatient = p && (
+        importedPatient.id === p.id ||
+        importedPatient.numeroDossier === p.numeroDossier ||
+        importedPatient.nom === p.nom
+      );
+
+      openImportDossierConfirm(importedPatient, importedClinical, isSamePatient);
+    };
+    reader.readAsText(file);
+  }
+
+  function showImportDossierError(msg) {
+    // Crée une modale d'erreur légère
+    const existing = document.getElementById('importDossierErrorModal');
+    if (existing) existing.remove();
+    const overlay = document.createElement('div');
+    overlay.id = 'importDossierErrorModal';
+    overlay.style.cssText = `position:fixed;inset:0;z-index:1300;background:rgba(15,23,42,0.55);
+      display:flex;align-items:center;justify-content:center;padding:20px;`;
+    overlay.innerHTML = `
+      <div style="background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow-lg);
+                  width:100%;max-width:420px;padding:28px;position:relative;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:38px;height:38px;background:var(--danger-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h3 style="font-size:15px;font-weight:700;color:var(--danger);">Erreur d'importation</h3>
+        </div>
+        <p style="font-size:13.5px;color:var(--text-primary);line-height:1.6;margin-bottom:18px;">${msg}</p>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('importDossierErrorModal').remove()">Fermer</button>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  function openImportDossierConfirm(importedPatient, importedClinical, isSamePatient) {
+    const existing = document.getElementById('importDossierConfirmModal');
+    if (existing) existing.remove();
+
+    const p = patients.find(x => x.id === currentDossierId);
+    const exportDate = importedPatient._export_date
+      ? new Date(importedPatient._export_date).toLocaleString('fr-FR')
+      : '—';
+
+    // Calcul du contenu importé
+    const clinical = importedClinical || {};
+    const nbVitals = (clinical.vitals || []).length;
+    const nbPrescriptions = (clinical.prescriptions || []).length;
+    const nbSuivi = (clinical.suivi || []).length;
+    const nbDocs = (clinical.documents || []).length;
+    const hasExamen = !!(clinical.examen && Object.values(clinical.examen).some(v => v));
+    const hasAnamnese = !!(clinical.anamnese && Object.values(clinical.anamnese).some(v => v));
+    const antMedicaux = (clinical.antecedents && clinical.antecedents.medicaux || []).length;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'importDossierConfirmModal';
+    overlay.style.cssText = `position:fixed;inset:0;z-index:1300;background:rgba(15,23,42,0.55);
+      display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;`;
+    overlay.innerHTML = `
+      <div style="background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow-lg);
+                  width:100%;max-width:500px;padding:28px;position:relative;margin:auto;">
+        <button onclick="document.getElementById('importDossierConfirmModal').remove()"
+          style="position:absolute;top:12px;right:12px;background:var(--neutral-bg);border:none;
+                 border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:15px;color:var(--text-secondary);">✕</button>
+
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+          <div style="width:38px;height:38px;background:var(--primary-light);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div>
+            <h3 style="font-size:15px;font-weight:700;color:var(--text-primary);">Importer un dossier JSON</h3>
+            <p style="font-size:12px;color:var(--text-secondary);">Vérifiez les informations avant de confirmer</p>
+          </div>
+        </div>
+
+        <!-- Contenu du fichier importé -->
+        <div style="background:var(--neutral-bg);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px;">Dossier dans le fichier</div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">
+            ${escapeHtml(importedPatient.nom || '—')} · ${escapeHtml(importedPatient.numeroDossier || '—')}
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">
+            ${escapeHtml(String(importedPatient.age || '?'))} ans · Chambre ${escapeHtml(importedPatient.chambre || '?')} · Admis le ${escapeHtml(importedPatient.dateAdmission || '?')}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            ${nbVitals ? `<span style="font-size:11.5px;background:var(--primary-light);color:var(--primary);padding:2px 9px;border-radius:100px;font-weight:600;">${nbVitals} constantes</span>` : ''}
+            ${nbPrescriptions ? `<span style="font-size:11.5px;background:var(--success-bg);color:var(--success);padding:2px 9px;border-radius:100px;font-weight:600;">${nbPrescriptions} prescriptions</span>` : ''}
+            ${nbSuivi ? `<span style="font-size:11.5px;background:var(--warning-bg);color:var(--warning);padding:2px 9px;border-radius:100px;font-weight:600;">${nbSuivi} notes suivi</span>` : ''}
+            ${nbDocs ? `<span style="font-size:11.5px;background:#f3e8ff;color:#7c3aed;padding:2px 9px;border-radius:100px;font-weight:600;">${nbDocs} documents</span>` : ''}
+            ${hasExamen ? `<span style="font-size:11.5px;background:var(--neutral-bg);color:var(--neutral);padding:2px 9px;border-radius:100px;font-weight:600;border:1px solid var(--border);">Examen clinique</span>` : ''}
+            ${hasAnamnese ? `<span style="font-size:11.5px;background:var(--neutral-bg);color:var(--neutral);padding:2px 9px;border-radius:100px;font-weight:600;border:1px solid var(--border);">Anamnèse</span>` : ''}
+            ${antMedicaux ? `<span style="font-size:11.5px;background:var(--neutral-bg);color:var(--neutral);padding:2px 9px;border-radius:100px;font-weight:600;border:1px solid var(--border);">${antMedicaux} antécédents médicaux</span>` : ''}
+          </div>
+        </div>
+
+        <!-- Choix du mode d'import -->
+        <div style="margin-bottom:18px;">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-secondary);margin-bottom:10px;">Mode d'importation</div>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;margin-bottom:8px;background:var(--bg-card);" id="importMode_merge_label">
+            <input type="radio" name="importMode" value="merge" id="importMode_merge" style="margin-top:3px;width:auto;" checked onchange="updateImportModeUI()">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Fusionner avec le dossier actuel</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Les nouvelles données sont ajoutées sans écraser ce qui existe déjà (constantes, prescriptions, notes, documents).</div>
+            </div>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;margin-bottom:8px;background:var(--bg-card);" id="importMode_replace_label">
+            <input type="radio" name="importMode" value="replace" id="importMode_replace" style="margin-top:3px;width:auto;" onchange="updateImportModeUI()">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--danger);">Remplacer le dossier clinique</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">⚠️ Toutes les données cliniques actuelles sont supprimées et remplacées par celles du fichier. Irréversible.</div>
+            </div>
+          </label>
+
+          ${isSamePatient ? '' : `
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:var(--bg-card);" id="importMode_new_label">
+            <input type="radio" name="importMode" value="new" id="importMode_new" style="margin-top:3px;width:auto;" onchange="updateImportModeUI()">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--primary);">Créer un nouveau patient</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Importe le patient et son dossier comme un nouvel enregistrement indépendant.</div>
+            </div>
+          </label>`}
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importDossierConfirmModal').remove()">Annuler</button>
+          <button class="btn btn-primary btn-sm" id="importDossierConfirmBtn" onclick="confirmImportDossier()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Confirmer l'importation
+          </button>
+        </div>
+      </div>`;
+    // Store payload safely in module-level variable, NOT in onclick HTML attribute
+    _pendingImportPayload = { patient: importedPatient, clinical: importedClinical };
+    document.body.appendChild(overlay);
+  }
+
+  function updateImportModeUI() {
+    ['merge','replace','new'].forEach(mode => {
+      const label = document.getElementById('importMode_' + mode + '_label');
+      const radio = document.getElementById('importMode_' + mode);
+      if (label && radio) {
+        label.style.borderColor = radio.checked ? 'var(--primary)' : 'var(--border)';
+        label.style.background = radio.checked ? 'var(--primary-light)' : 'var(--bg-card)';
+      }
+    });
+  }
+
+  function confirmImportDossier() {
+    if (!_pendingImportPayload) { showImportDossierError('Données d\'importation perdues. Recommencez.'); return; }
+    const importedPatient  = _pendingImportPayload.patient;
+    const importedClinical = _pendingImportPayload.clinical;
+    _pendingImportPayload = null;
+
+    const modeEl = document.querySelector('input[name="importMode"]:checked');
+    const mode = modeEl ? modeEl.value : 'merge';
+
+    if (mode === 'merge') {
+      // Fusionne les données cliniques : ajoute sans écraser
+      const current = getClinicalRecord(getCurrentClinicalKey());
+
+      // Antécédents : union des tableaux (évite doublons exacts)
+      ['medicaux','chirurgicaux','allergies','familiaux'].forEach(k => {
+        const existing = current.antecedents[k] || [];
+        const incoming = (importedClinical.antecedents || {})[k] || [];
+        const merged = [...existing];
+        incoming.forEach(item => { if (!merged.includes(item)) merged.push(item); });
+        current.antecedents[k] = merged;
+      });
+
+      // Constantes : ajoute toutes (pas de dedup, dates différentes)
+      current.vitals = [...(current.vitals || []), ...(importedClinical.vitals || [])];
+      current.vitals.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // Prescriptions : ajoute les nouvelles
+      current.prescriptions = [...(current.prescriptions || []), ...(importedClinical.prescriptions || [])];
+
+      // Suivi : ajoute les nouvelles notes
+      current.suivi = [...(current.suivi || []), ...(importedClinical.suivi || [])];
+      current.suivi.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // Examen clinique : remplace si le champ est vide dans le dossier actuel
+      const exFields = ['exMotif','exEtatGeneral','exCardio','exPulmo','exAbdo','exNeuro','exAutres'];
+      exFields.forEach(f => {
+        if (!(current.examen || {})[f] && (importedClinical.examen || {})[f])
+          current.examen[f] = importedClinical.examen[f];
+      });
+
+      // Anamnèse : remplace si vide
+      if (!current.anamnese || !Object.values(current.anamnese).some(v => v)) {
+        current.anamnese = importedClinical.anamnese || {};
+      }
+
+      // Documents : ajoute sans dedup
+      current.documents = [...(current.documents || []), ...(importedClinical.documents || [])];
+
+      // Timeline (entries)
+      current.entries = [...(current.entries || []), ...(importedClinical.entries || [])];
+      if (current.entries.length) current.entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      setClinicalRecord(getCurrentClinicalKey(), current);
+      document.getElementById('importDossierConfirmModal').remove();
+      openDossier(currentDossierId);
+      showToast('✅ Dossier fusionné avec succès.');
+      logAudit('IMPORT_DOSSIER_JSON_MERGE', 'import', currentDossierId, { from: importedPatient.nom });
+
+    } else if (mode === 'replace') {
+      setClinicalRecord(getActiveClinicalKey(currentDossierId), importedClinical);
+      document.getElementById('importDossierConfirmModal').remove();
+      openDossier(currentDossierId);
+      showToast('✅ Dossier clinique remplacé.');
+      logAudit('IMPORT_DOSSIER_JSON_REPLACE', 'import', currentDossierId, { from: importedPatient.nom });
+
+    } else if (mode === 'new') {
+      // Crée un nouveau patient avec un nouvel ID
+      const newPatient = normalizePatientRecord({
+        ...importedPatient,
+        id: undefined,          // génère un nouvel ID
+        numeroDossier: undefined // génère un nouveau numéro
+      });
+      patients.push(newPatient);
+      saveJson(STORAGE_KEYS.patients, patients);
+      setClinicalRecord(newPatient.id, importedClinical);
+      document.getElementById('importDossierConfirmModal').remove();
+      renderPatientTable();
+      renderStats();
+      renderSidebarList();
+      openDossier(newPatient.id);
+      showToast('✅ Nouveau patient importé avec succès.');
+      logAudit('IMPORT_DOSSIER_JSON_NEW', 'import', newPatient.id, { from: importedPatient.nom });
+    }
+  }
+
+  // ===================================================================
+  // SYSTÈME DE SÉJOURS (RÉADMISSION) — v13
+  // ===================================================================
+
+  // --- Séjour courant visualisé dans le dossier (null = séjour actif)
+  let currentSejourId = null;
+
+  // --- Clé de stockage séjours ---
+  // Structure: { [patientId]: [ { id, numero, dateAdmission, dateSortie, chambre, medecin,
+  //   statut, diagnostic, lienPrecedent, clinicalKey, createdAt } ] }
+
+  function loadSejours() { return safeReadJson(STORAGE_KEYS.sejours, {}); }
+  function saveSejours(data) { saveJson(STORAGE_KEYS.sejours, data); }
+
+  function getPatientSejours(patientId) {
+    const all = loadSejours();
+    return (all[patientId] || []).slice().sort((a, b) => new Date(a.dateAdmission) - new Date(b.dateAdmission));
+  }
+
+  function generateSejourId() { return 'sej_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
+
+  // Retourne l'ID de la clinicalKey du séjour actif (= patientId si aucun séjour, sejourId sinon)
+  function getActiveClinicalKey(patientId) {
+    const sejours = getPatientSejours(patientId);
+    if (sejours.length === 0) return patientId; // Rétro-compat : données au niveau patient
+    const actif = sejours.find(s => !s.dateSortie);
+    return actif ? actif.id : sejours[sejours.length - 1].id;
+  }
+
+  // Clé clinique courante pour les opérations (lecture/écriture constantes, examen, etc.)
+  function getCurrentClinicalKey() {
+    if (currentSejourId) return currentSejourId;
+    return getActiveClinicalKey(currentDossierId);
+  }
+
+  // --- Migration automatique : crée le séjour S1 si le patient n'en a pas encore ---
+  function migratePatientToSejours(patientId) {
+    const all = loadSejours();
+    if (all[patientId] && all[patientId].length > 0) return; // Déjà migré
+    const p = patients.find(x => x.id === patientId);
+    if (!p) return;
+    const sejour = {
+      id: patientId, // S1 : la clinicalKey == patientId pour rétro-compat
+      numero: generateSejourNumberForIndex(patientId, 1),
+      dateAdmission: p.dateAdmission || new Date().toISOString().slice(0, 10),
+      dateSortie: p.statut === 'Sorti' ? (p.updatedAt ? p.updatedAt.slice(0, 10) : '') : null,
+      chambre: p.chambre || '',
+      medecin: p.medecin || '',
+      statut: p.statut || 'Hospitalisé',
+      diagnostic: p.diagnostic || '',
+      lienPrecedent: null,
+      clinicalKey: patientId,
+      createdAt: p.createdAt || new Date().toISOString(),
+    };
+    if (!all[patientId]) all[patientId] = [];
+    all[patientId].push(sejour);
+    saveSejours(all);
+  }
+
+  function generateSejourNumberForIndex(patientId, idx) {
+    const p = patients.find(x => x.id === patientId);
+    const base = p ? (p.numeroDossier || patientId.split('_')[1] || patientId) : patientId;
+    return `${base}/S${idx}`;
+  }
+
+  // ===================================================================
+  // OUVERTURE MODALE RÉADMISSION
+  // ===================================================================
+  let _readmitPatientId = null;
+
+  function openReadmitModal(patientId) {
+    _readmitPatientId = patientId;
+    const p = patients.find(x => x.id === patientId);
+    if (!p) return;
+
+    migratePatientToSejours(patientId);
+    const sejours = getPatientSejours(patientId);
+    const last = sejours[sejours.length - 1];
+
+    // Résumé dernier séjour
+    const sub = document.getElementById('readmitSub');
+    if (sub) sub.textContent = `Patient : ${p.nom} — ${p.numeroDossier} — Séjour ${sejours.length} / nouveau séjour S${sejours.length + 1}`;
+
+    const lastDiv = document.getElementById('readmitLastSejour');
+    if (lastDiv && last) {
+      lastDiv.innerHTML = `
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:6px;">Dernier séjour (${last.numero})</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px 18px;">
+          <span>📅 Admission : <strong>${formatDate(last.dateAdmission)}</strong></span>
+          ${last.dateSortie ? `<span>🚪 Sortie : <strong>${formatDate(last.dateSortie)}</strong></span>` : ''}
+          <span>🏥 Chambre : <strong>${escapeHtml(last.chambre || '-')}</strong></span>
+          <span>🔬 Diagnostic : <strong>${escapeHtml(last.diagnostic || '-')}</strong></span>
+        </div>`;
+    }
+
+    // Pré-remplissage
+    const today = new Date();
+    document.getElementById('readmitDate').value = today.toISOString().slice(0, 10);
+    document.getElementById('readmitChambre').value = '';
+    document.getElementById('readmitMedecin').value = p.medecin || '';
+    document.getElementById('readmitStatut').value = 'Hospitalisé';
+    document.getElementById('readmitDiagnostic').value = '';
+    document.getElementById('readmitLien').value = 'Même pathologie';
+    document.getElementById('readmitError').style.display = 'none';
+
+    document.getElementById('readmitOverlay').classList.add('open');
+  }
+
+  function closeReadmitModal() {
+    document.getElementById('readmitOverlay').classList.remove('open');
+    _readmitPatientId = null;
+  }
+
+  function confirmReadmit() {
+    const patientId = _readmitPatientId;
+    if (!patientId) return;
+
+    const dateAdmission = document.getElementById('readmitDate').value;
+    const chambre       = document.getElementById('readmitChambre').value.trim();
+    const medecin       = document.getElementById('readmitMedecin').value.trim();
+    const statut        = document.getElementById('readmitStatut').value;
+    const diagnostic    = document.getElementById('readmitDiagnostic').value.trim();
+    const lien          = document.getElementById('readmitLien').value;
+
+    const errEl = document.getElementById('readmitError');
+    if (!dateAdmission) { errEl.textContent = 'La date d\'admission est obligatoire.'; errEl.style.display = 'block'; return; }
+    if (!chambre)        { errEl.textContent = 'La chambre est obligatoire.'; errEl.style.display = 'block'; return; }
+    if (!diagnostic)     { errEl.textContent = 'Le diagnostic / motif d\'admission est obligatoire.'; errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+
+    // Vérif conflit chambre
+    const roomConflict = patients.find(x => x.id !== patientId && isActiveStatus(x.statut) && (x.chambre || '').toLowerCase() === chambre.toLowerCase());
+    if (roomConflict) {
+      errEl.textContent = `Conflit : la chambre "${chambre}" est déjà occupée par ${roomConflict.nom}.`;
+      errEl.style.display = 'block';
+      return;
+    }
+
+    migratePatientToSejours(patientId);
+    const all = loadSejours();
+    const sejours = getPatientSejours(patientId);
+    const idx = sejours.length + 1;
+
+    // Marquer la sortie du dernier séjour si besoin
+    const last = sejours[sejours.length - 1];
+    if (last && !last.dateSortie) {
+      const lastRef = all[patientId].find(s => s.id === last.id);
+      if (lastRef) { lastRef.dateSortie = dateAdmission; lastRef.statut = 'Sorti'; }
+    }
+
+    // Créer le nouveau séjour — clinicalKey propre
+    const newSejourId = generateSejourId();
+    const newSejour = {
+      id: newSejourId,
+      numero: generateSejourNumberForIndex(patientId, idx),
+      dateAdmission,
+      dateSortie: null,
+      chambre,
+      medecin,
+      statut,
+      diagnostic,
+      lienPrecedent: lien,
+      clinicalKey: newSejourId,
+      createdAt: new Date().toISOString(),
+    };
+    all[patientId].push(newSejour);
+    saveSejours(all);
+
+    // Initialiser le dossier clinique du nouveau séjour avec les antécédents du patient
+    const patientClinical = getClinicalRecord(patientId);
+    const newClinical = {
+      antecedents: JSON.parse(JSON.stringify(patientClinical.antecedents || { medicaux: [], chirurgicaux: [], allergies: [], familiaux: [] })),
+      examen: {},
+      vitals: [],
+      prescriptions: [],
+      suivi: [],
+      anamnese: {},
+      documents: [],
+      entries: [],
+    };
+    setClinicalRecord(newSejourId, newClinical);
+
+    // Mettre à jour le patient (statut, chambre, médecin, diagnostic, dateAdmission)
+    const pIdx = patients.findIndex(x => x.id === patientId);
+    if (pIdx !== -1) {
+      patients[pIdx] = { ...patients[pIdx], statut, chambre, medecin, diagnostic, dateAdmission, updatedAt: new Date().toISOString() };
+      saveData();
+    }
+
+    closeReadmitModal();
+    renderPatientTable();
+    renderStats();
+    renderSidebarList();
+    showToast(`✅ Séjour ${newSejour.numero} créé — ${p ? p.nom : ''} réadmis.`);
+    logAudit('READMIT', 'patient', patientId, { sejourId: newSejourId, numero: newSejour.numero, diagnostic, lien });
+
+    // Ouvrir directement le nouveau séjour
+    openDossier(patientId);
+  }
+
+  // ===================================================================
+  // NAVIGATION ENTRE SÉJOURS DANS LE DOSSIER
+  // ===================================================================
+
+  function renderSejoursNavBar(patientId) {
+    const sejours = getPatientSejours(patientId);
+    const tab  = document.getElementById('sejoursTab');
+    const nav  = document.getElementById('sejoursNavBar');
+    const cnt  = document.getElementById('sejoursTabCount');
+    if (!tab || !nav) return;
+
+    if (sejours.length <= 1) {
+      tab.style.display = 'none';
+      nav.style.display = 'none';
+      return;
+    }
+
+    tab.style.display = 'inline-flex';
+    if (cnt) cnt.textContent = sejours.length;
+
+    const activeClinKey = getActiveClinicalKey(patientId);
+    const viewing = currentSejourId || activeClinKey;
+
+    nav.style.display = 'block';
+    nav.innerHTML = `
+      <div class="sejours-nav">
+        <span class="sejours-nav-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;display:inline;margin-right:3px;vertical-align:-1px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Séjours :
+        </span>
+        ${sejours.map((s, i) => {
+          const isActive = !s.dateSortie;
+          const isCurrent = s.id === viewing;
+          return `<button
+            class="sejour-pill ${isCurrent ? 'active' : ''} ${isActive ? 'active-sejour' : ''}"
+            onclick="switchSejour('${s.id}')"
+            title="${escapeHtml(s.diagnostic || '-')} — ${formatDate(s.dateAdmission)}${s.dateSortie ? ' → ' + formatDate(s.dateSortie) : ' (en cours)'}">
+            ${isActive ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' : ''}
+            S${i + 1}
+            <span style="font-size:10.5px;font-weight:400;opacity:0.75;">${formatDate(s.dateAdmission)}</span>
+          </button>`;
+        }).join('')}
+        <span style="font-size:11.5px;color:var(--text-muted);margin-left:4px;">
+          ${(() => { const cur = sejours.find(s => s.id === viewing); return cur ? `· ${escapeHtml(cur.diagnostic || '')}` : ''; })()}
+        </span>
+      </div>`;
+
+    // Bannière d'avertissement si séjour historique
+    const viewSejour = sejours.find(s => s.id === viewing);
+    const isHistorique = viewSejour && viewSejour.dateSortie;
+    const existingBanner = document.getElementById('sejourHistoriqueBanner');
+    if (existingBanner) existingBanner.remove();
+
+    if (isHistorique) {
+      const banner = document.createElement('div');
+      banner.id = 'sejourHistoriqueBanner';
+      banner.className = 'readmit-banner';
+      banner.innerHTML = `
+        <div>
+          <div class="readmit-banner-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;display:inline;margin-right:5px;vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Consultation d'un séjour archivé — ${escapeHtml(viewSejour.numero)}
+          </div>
+          <div class="readmit-banner-sub">
+            Du ${formatDate(viewSejour.dateAdmission)} au ${formatDate(viewSejour.dateSortie)} · ${escapeHtml(viewSejour.diagnostic || '-')}
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="switchToActiveSejour()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Retour au séjour actif
+        </button>`;
+      nav.appendChild(banner);
+    }
+  }
+
+  function switchSejour(sejourId) {
+    currentSejourId = sejourId;
+    renderSejoursNavBar(currentDossierId);
+    refreshDossierClinicalPanes();
+    showToast('Séjour chargé.');
+  }
+
+  function switchToActiveSejour() {
+    currentSejourId = null;
+    renderSejoursNavBar(currentDossierId);
+    refreshDossierClinicalPanes();
+  }
+
+  // Depuis l'onglet Séjours : switcher vers un séjour ET revenir à l'onglet Antécédents
+  function viewSejourDossier(sejourId) {
+    currentSejourId = sejourId;
+    renderSejoursNavBar(currentDossierId);
+    refreshDossierClinicalPanes();
+    // Revenir au premier onglet (Antécédents)
+    const tabs  = document.querySelectorAll('.clinical-tab');
+    const panes = document.querySelectorAll('.clinical-pane');
+    tabs.forEach((t, i)  => t.classList.toggle('active', i === 0));
+    panes.forEach((p, i) => p.classList.toggle('active', i === 0));
+    showToast('Séjour chargé — consultation du dossier.');
+  }
+
+  function refreshDossierClinicalPanes() {
+    const key = getCurrentClinicalKey();
+    renderAntecedents();
+    renderVitals();
+    renderExamen();
+    renderSuiviTimeline();
+    renderPrescriptions();
+    renderTimeline();
+    loadAnamneseIntoForm(key);
+    renderDocuments(key);
+  }
+
+  // ===================================================================
+  // ONGLET SÉJOURS — LISTE HISTORIQUE
+  // ===================================================================
+  function renderSejoursList(patientId) {
+    const container = document.getElementById('sejoursList');
+    if (!container) return;
+    const sejours = getPatientSejours(patientId);
+    if (sejours.length === 0) {
+      container.innerHTML = '<div class="timeline-empty">Aucun séjour enregistré.</div>';
+      return;
+    }
+
+    const lienIcons = {
+      'Même pathologie': '♻️',
+      'Complication': '⚠️',
+      'Pathologie différente': '🔄',
+      'Non précisé': '—',
+    };
+
+    container.innerHTML = [...sejours].reverse().map((s, ri) => {
+      const idx = sejours.length - ri;
+      const isActif = !s.dateSortie;
+      const duree = (() => {
+        const d1 = new Date(s.dateAdmission);
+        const d2 = s.dateSortie ? new Date(s.dateSortie) : new Date();
+        const diff = Math.round((d2 - d1) / 86400000);
+        return diff >= 0 ? diff + ' j' : '—';
+      })();
+
+      return `
+      <div style="border:1.5px solid ${isActif ? 'var(--success)' : 'var(--border)'};border-radius:var(--radius);padding:16px;margin-bottom:12px;background:${isActif ? '#f0fdf4' : 'var(--bg-card)'};">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+          <div>
+            <span class="sejour-badge ${isActif ? 'actif' : 'sorti'}" style="margin-right:8px;">
+              ${isActif ? '🟢 Séjour actif' : '⚪ Séjour archivé'}
+            </span>
+            <strong style="font-size:14px;color:var(--text-primary);">S${idx} — ${escapeHtml(s.numero)}</strong>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="viewSejourDossier('${s.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Voir le dossier
+            </button>
+            ${!isActif ? '' : `<button class="btn btn-secondary btn-sm" style="color:var(--danger);border-color:var(--danger);" onclick="closeSejour('${patientId}','${s.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Clôturer ce séjour
+            </button>`}
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--text-secondary);">
+          <span>📅 Admission : <strong style="color:var(--text-primary);">${formatDate(s.dateAdmission)}</strong></span>
+          ${s.dateSortie ? `<span>🚪 Sortie : <strong style="color:var(--text-primary);">${formatDate(s.dateSortie)}</strong></span>` : ''}
+          <span>⏱ Durée : <strong style="color:var(--text-primary);">${duree}</strong></span>
+          <span>🏥 Chambre : <strong style="color:var(--text-primary);">${escapeHtml(s.chambre || '-')}</strong></span>
+          ${s.medecin ? `<span>👨‍⚕️ Dr. <strong style="color:var(--text-primary);">${escapeHtml(s.medecin)}</strong></span>` : ''}
+        </div>
+        <div style="margin-top:8px;font-size:13px;">
+          <span style="font-weight:600;color:var(--text-primary);">🔬 ${escapeHtml(s.diagnostic || '-')}</span>
+          ${s.lienPrecedent && s.lienPrecedent !== 'Non précisé' ? `<span style="margin-left:10px;font-size:12px;color:var(--text-secondary);">${lienIcons[s.lienPrecedent] || ''} ${escapeHtml(s.lienPrecedent)}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Clôturer manuellement un séjour depuis l'onglet Séjours
+  function closeSejour(patientId, sejourId) {
+    const today = new Date().toISOString().slice(0, 10);
+    const dateStr = prompt('Date de sortie (AAAA-MM-JJ) :', today);
+    if (!dateStr) return;
+    const all = loadSejours();
+    const sejRef = (all[patientId] || []).find(s => s.id === sejourId);
+    if (sejRef) { sejRef.dateSortie = dateStr; sejRef.statut = 'Sorti'; }
+    saveSejours(all);
+    // Mettre à jour le patient
+    const pIdx = patients.findIndex(x => x.id === patientId);
+    if (pIdx !== -1) { patients[pIdx].statut = 'Sorti'; patients[pIdx].updatedAt = new Date().toISOString(); saveData(); }
+    renderPatientTable();
+    renderStats();
+    renderSidebarList();
+    renderSejoursList(patientId);
+    renderSejoursNavBar(patientId);
+    showToast('Séjour clôturé.');
+    logAudit('CLOSE_SEJOUR', 'patient', patientId, { sejourId, dateSortie: dateStr });
+  }
 
   // ===================================================================
   // INIT PRINCIPAL
