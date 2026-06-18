@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MediTrack — Gestion des Patients Hospitalisés</title>
+<!-- MediTrack v11 — Améliorations cliniques : qSOFA, backup chiffré, saisie rapide, vue scores globale, offline-first -->
+<!-- Google Fonts avec fallback système — chargé de façon non-bloquante pour garantir le mode offline -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <style>
   :root {
     --primary: #0a5f7a;
@@ -869,7 +872,91 @@
     padding: 2px 8px; margin-left: 4px;
   }
 
-  /* ===== SCORES CLINIQUES (NEWS2 + Glasgow) ===== */
+  /* ===== qSOFA CARD ===== */
+  .qsofa-card {
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius); padding: 12px 14px;
+    background: var(--bg-card); grid-column: 1 / -1;
+    margin-top: 4px;
+  }
+  .qsofa-card.qsofa-alert { border-color: var(--danger); background: var(--danger-bg); }
+  .qsofa-card.qsofa-warn  { border-color: #fcd34d; background: #fffbeb; }
+  .qsofa-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .qsofa-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+  .qsofa-card.qsofa-alert .qsofa-title { color: var(--danger); }
+  .qsofa-score { font-size: 28px; font-weight: 800; color: var(--text-muted); margin-right: 6px; }
+  .qsofa-card.qsofa-alert .qsofa-score { color: var(--danger); }
+  .qsofa-card.qsofa-warn  .qsofa-score { color: #b45309; }
+  .qsofa-criteria { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .qsofa-crit { font-size: 11.5px; padding: 2px 9px; border-radius: 100px; background: rgba(0,0,0,0.06); color: var(--text-secondary); }
+  .qsofa-crit.met { background: var(--danger-bg); color: var(--danger); font-weight: 700; }
+  .qsofa-detail { font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; }
+  .qsofa-card.qsofa-alert .qsofa-detail { color: var(--danger); font-weight: 600; }
+
+  /* ===== MODAL SAISIE RAPIDE CONSTANTES ===== */
+  .quick-vitals-overlay {
+    position: fixed; inset: 0; z-index: 1500;
+    background: rgba(15,23,42,0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    opacity: 0; visibility: hidden; transition: opacity 0.18s ease;
+  }
+  .quick-vitals-overlay.open { opacity: 1; visibility: visible; }
+  .quick-vitals-card {
+    background: var(--bg-card); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg); width: 100%; max-width: 520px;
+    max-height: 92vh; overflow-y: auto; padding: 24px;
+    position: relative;
+  }
+  .quick-vitals-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; color: var(--text-primary); }
+  .qv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .qv-field { display: flex; flex-direction: column; gap: 4px; }
+  .qv-field label { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+  .qv-patient-search { position: relative; margin-bottom: 14px; }
+  .qv-patient-search input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; }
+  .qv-patient-search input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .qv-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); z-index: 10; max-height: 180px; overflow-y: auto; }
+  .qv-dropdown-item { padding: 9px 12px; cursor: pointer; font-size: 13.5px; border-bottom: 1px solid var(--border); }
+  .qv-dropdown-item:last-child { border-bottom: none; }
+  .qv-dropdown-item:hover { background: var(--primary-light); }
+  .qv-fab {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--primary); color: white;
+    border: none; cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; font-size: 26px; font-weight: 300;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .qv-fab:hover { background: var(--primary-dark); transform: scale(1.07); }
+  .qv-fab svg { width: 22px; height: 22px; }
+  .qv-fab-label {
+    position: fixed; bottom: 36px; right: 90px;
+    background: #1e293b; color: white; border-radius: 6px;
+    font-size: 12.5px; font-weight: 500; padding: 5px 10px;
+    pointer-events: none; opacity: 0; transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .qv-fab:hover ~ .qv-fab-label { opacity: 1; }
+
+  /* ===== DASHBOARD NEWS2 RISK PANEL ===== */
+  .news2-risk-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .news2-risk-table th { background: var(--neutral-bg); color: var(--text-secondary); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .news2-risk-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+  .news2-risk-table tr:last-child td { border-bottom: none; }
+  .news2-risk-table tr:hover td { background: var(--neutral-bg); }
+  .news2-score-badge { display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; width: 34px; height: 34px; border-radius: 50%; }
+  .news2-score-badge.score-low    { background: #f0fdf4; color: #15803d; }
+  .news2-score-badge.score-medium { background: #fffbeb; color: #b45309; }
+  .news2-score-badge.score-high   { background: #fff1f2; color: #b91c1c; }
+  .news2-score-badge.score-urgent { background: var(--danger-bg); color: var(--danger); }
+  .news2-score-badge.score-empty  { background: var(--neutral-bg); color: var(--text-muted); font-size: 13px; }
+
+  /* ===== BACKUP CHIFFRÉ ===== */
+  .backup-progress {
+    font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; font-style: italic;
+  }
   .scores-panel {
     display: grid; grid-template-columns: 1fr 1fr;
     gap: 12px; margin-bottom: 16px;
@@ -1482,7 +1569,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
       Paramètres clinique
     </button>
-    <div class="sidebar-footer" id="sidebarFooter">MediTrack v9.0 — Données stockées localement sur cet appareil<br>Développé par Ny Aina Med's</div>
+    <div class="sidebar-footer" id="sidebarFooter">MediTrack v11 — Données stockées localement sur cet appareil<br>Développé par Ny Aina Med's</div>
   </aside>
 
   <!-- ===== MAIN CONTENT ===== -->
@@ -1577,6 +1664,28 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         <p>Toutes les constantes sont à jour</p>
         <span>Aucun patient hospitalisé n'a de prise de constantes en retard (&gt; 24h)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD : VUE GLOBALE SCORES NEWS2 / qSOFA ===== -->
+  <div class="panel" id="news2RiskPanel">
+    <div class="panel-header">
+      <h2>
+        <span class="header-icon" style="background:#fef2f2; color:var(--danger);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </span>
+        Scores cliniques — vue service (NEWS2 / qSOFA)
+      </h2>
+      <span style="font-size:11.5px; color:var(--text-muted);">Triés par risque décroissant · Dernière mesure</span>
+    </div>
+    <div class="panel-body" style="padding: 0;">
+      <div id="news2RiskList">
+        <div class="empty-state" style="padding: 32px 24px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <p>Aucun patient actif</p>
+          <span>Les scores apparaîtront après la première prise de constantes</span>
+        </div>
       </div>
     </div>
   </div>
@@ -2039,6 +2148,22 @@
             </div>
           </div>
 
+          <!-- qSOFA (Sepsis-3) -->
+          <div class="qsofa-card" id="qsofaCard">
+            <div class="qsofa-header">
+              <span class="qsofa-score" id="qsofaScore">—</span>
+              <div>
+                <div class="qsofa-title">qSOFA — Dépistage sepsis (Sepsis-3)</div>
+                <div class="qsofa-detail" id="qsofaDetail">Aucune donnée disponible</div>
+              </div>
+            </div>
+            <div class="qsofa-criteria" id="qsofaCriteria">
+              <span class="qsofa-crit" id="qsofaCritFR">FR ≥ 22/min</span>
+              <span class="qsofa-crit" id="qsofaCritTA">PAS ≤ 100 mmHg</span>
+              <span class="qsofa-crit" id="qsofaCritGCS">GCS &lt; 15</span>
+            </div>
+          </div>
+
           <div class="dossier-section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             Nouvelle prise de constantes
@@ -2412,6 +2537,52 @@
 
 </div>
 <!-- /app-layout -->
+
+<!-- ===== SAISIE RAPIDE DE CONSTANTES (bouton flottant) ===== -->
+<button class="qv-fab" id="quickVitalsFab" title="Saisie rapide de constantes" onclick="openQuickVitals()" style="display:none;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+</button>
+<div class="qv-fab-label">Saisie rapide constantes</div>
+
+<div class="quick-vitals-overlay" id="quickVitalsOverlay">
+  <div class="quick-vitals-card">
+    <button onclick="closeQuickVitals()" style="position:absolute;top:12px;right:12px;background:var(--neutral-bg);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:15px;color:var(--text-secondary);">✕</button>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;display:inline;vertical-align:middle;margin-right:6px;color:var(--primary);"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Saisie rapide — Tour de garde
+    </h3>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Patient</label>
+      <div class="qv-patient-search">
+        <input type="text" id="qvPatientSearch" placeholder="Rechercher un patient actif..." oninput="filterQvPatients(this.value)" autocomplete="off">
+        <div class="qv-dropdown" id="qvDropdown" style="display:none;"></div>
+      </div>
+      <div id="qvSelectedPatient" style="display:none; background:var(--primary-light); border-radius:var(--radius-sm); padding:8px 12px; font-size:13px; font-weight:600; color:var(--primary);"></div>
+    </div>
+    <div class="qv-grid">
+      <div class="qv-field"><label>TAS (mmHg)</label><input type="number" id="qvTAS" placeholder="120"></div>
+      <div class="qv-field"><label>TAD (mmHg)</label><input type="number" id="qvTAD" placeholder="80"></div>
+      <div class="qv-field"><label>FC (bpm)</label><input type="number" id="qvFC" placeholder="75"></div>
+      <div class="qv-field"><label>FR (/min)</label><input type="number" id="qvFR" placeholder="16"></div>
+      <div class="qv-field"><label>Température (°C)</label><input type="number" step="0.1" id="qvTemp" placeholder="37.0"></div>
+      <div class="qv-field"><label>SpO2 (%)</label><input type="number" id="qvSpO2" placeholder="98"></div>
+      <div class="qv-field">
+        <label>Sous O₂ ?</label>
+        <select id="qvSpO2O2"><option value="non">Non</option><option value="oui">Oui</option></select>
+      </div>
+      <div class="qv-field"><label>Glycémie (g/L)</label><input type="number" step="0.01" id="qvGlyc" placeholder="1.00"></div>
+      <div class="qv-field"><label>Poids (kg)</label><input type="number" step="0.1" id="qvPoids" placeholder="70"></div>
+    </div>
+    <div id="qvValidationError" style="display:none; background:var(--danger-bg); color:var(--danger); font-size:12.5px; font-weight:500; border-radius:var(--radius-sm); padding:9px 12px; margin-bottom:10px;"></div>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button type="button" class="btn btn-secondary btn-sm" onclick="closeQuickVitals()">Annuler</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="submitQuickVitals()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Enregistrer
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
   let patients = [];
@@ -2965,6 +3136,16 @@
     document.getElementById('navCountSortie').textContent = patients.filter(p => p.statut === 'Sorti').length;
   }
 
+  // Alias dashboard render — appelé depuis submitQuickVitals et autres
+  function renderDashboard() {
+    updateStats();
+    renderRecentTable();
+    renderCriticalList();
+    renderVitalsDueList();
+    renderNews2RiskPanel();
+    renderSidebarList();
+  }
+
   function renderTable() {
     const tbody = document.getElementById('patientTableBody');
     const search = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -3026,6 +3207,7 @@
     renderRecentTable();
     renderCriticalList();
     renderVitalsDueList();
+    renderNews2RiskPanel();
     renderSidebarList();
   }
 
@@ -3147,6 +3329,165 @@
     }).join('');
   }
 
+
+  // ===== DASHBOARD : VUE GLOBALE SCORES NEWS2 + qSOFA =====
+  function renderNews2RiskPanel() {
+    const container = document.getElementById('news2RiskList');
+    if (!container) return;
+    const clinical = loadClinical();
+    const activePats = patients.filter(p => isActiveStatus(p.statut));
+    if (activePats.length === 0) {
+      container.innerHTML = `<div class="empty-state" style="padding:32px 24px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <p>Aucun patient actif</p><span>Les scores apparaîtront après la première prise de constantes</span></div>`;
+      return;
+    }
+
+    const NEWS2_LEVEL_ORDER = { urgent: 4, high: 3, medium: 2, low: 1, empty: 0 };
+    const rows = activePats.map(p => {
+      const rec = clinical[p.id];
+      const vitals = (rec && rec.vitals) ? rec.vitals.slice().sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
+      const last = vitals[0] || null;
+      const news = last ? calcNEWS2(last) : null;
+      const gcs  = last ? calcGlasgow(last) : null;
+      const qsofa = last ? calcQSOFA(last) : null;
+      const newsLevel = news ? news.level : 'empty';
+      return { p, last, news, gcs, qsofa, newsLevel, order: NEWS2_LEVEL_ORDER[newsLevel] || 0 };
+    }).sort((a, b) => b.order - a.order);
+
+    const newsScoreBadge = (news) => {
+      if (!news) return '<span class="news2-score-badge score-empty">—</span>';
+      return `<span class="news2-score-badge ${NEWS2_CSS[news.level]}">${news.score}</span>`;
+    };
+
+    const qsofaBadge = (q) => {
+      if (!q) return '<span style="color:var(--text-muted);font-size:12px;">—</span>';
+      const cls = q.alert ? 'color:var(--danger);font-weight:700;' : (q.score === 1 ? 'color:#b45309;font-weight:600;' : 'color:var(--success);');
+      return `<span style="${cls}">${q.score}/3${q.alert ? ' ⚠' : ''}</span>`;
+    };
+
+    container.innerHTML = `<table class="news2-risk-table">
+      <thead><tr>
+        <th>Patient</th><th>Chambre</th><th>Médecin</th><th>Statut</th>
+        <th>NEWS2</th><th>qSOFA</th><th>GCS</th><th>Dernière mesure</th><th></th>
+      </tr></thead>
+      <tbody>${rows.map(({ p, last, news, gcs, qsofa }) => `
+        <tr>
+          <td><strong>${escapeHtml(p.nom)}</strong><br><span style="font-size:11px;color:var(--text-muted);">${escapeHtml(p.numeroDossier || '')}</span></td>
+          <td>${escapeHtml(p.chambre)}</td>
+          <td style="font-size:12.5px;">${escapeHtml(p.medecin || '—')}</td>
+          <td><span class="badge ${badgeClass(p.statut)}">${escapeHtml(p.statut)}</span></td>
+          <td style="text-align:center;">${newsScoreBadge(news)}${news ? `<br><span style="font-size:10.5px;color:var(--text-secondary);">${escapeHtml(news.label)}</span>` : ''}</td>
+          <td style="text-align:center;">${qsofaBadge(qsofa)}</td>
+          <td style="text-align:center;">${gcs && gcs.isComplete ? `<span style="font-weight:700;font-size:14px;">${gcs.score}</span><span style="color:var(--text-muted);font-size:10.5px;"> (${gcs.display})</span>` : '<span style="color:var(--text-muted);">—</span>'}</td>
+          <td style="font-size:11.5px;color:var(--text-secondary);">${last ? formatDateTime(last.date) : '<em>Jamais</em>'}</td>
+          <td><button class="icon-btn" title="Ouvrir le dossier" onclick="openDossier('${p.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </button></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  // ===== SAISIE RAPIDE DE CONSTANTES (FAB) =====
+  let _qvSelectedPatientId = null;
+
+  function openQuickVitals() {
+    _qvSelectedPatientId = null;
+    document.getElementById('qvPatientSearch').value = '';
+    document.getElementById('qvSelectedPatient').style.display = 'none';
+    document.getElementById('qvDropdown').style.display = 'none';
+    ['qvTAS','qvTAD','qvFC','qvFR','qvTemp','qvSpO2','qvGlyc','qvPoids'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('qvSpO2O2').value = 'non';
+    document.getElementById('qvValidationError').style.display = 'none';
+    document.getElementById('quickVitalsOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('qvPatientSearch').focus(), 100);
+  }
+
+  function closeQuickVitals() {
+    document.getElementById('quickVitalsOverlay').classList.remove('open');
+  }
+
+  document.getElementById('quickVitalsOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeQuickVitals();
+  });
+
+  function filterQvPatients(query) {
+    const dropdown = document.getElementById('qvDropdown');
+    const q = query.toLowerCase().trim();
+
+    // BUG 3 FIX: reset selection when user types again after having selected
+    if (_qvSelectedPatientId) {
+      _qvSelectedPatientId = null;
+      document.getElementById('qvSelectedPatient').style.display = 'none';
+    }
+
+    // BUG 10 FIX: don't show all patients when query is empty
+    if (!q) { dropdown.style.display = 'none'; return; }
+
+    const active = patients.filter(p => isActiveStatus(p.statut));
+    const filtered = active.filter(p =>
+      p.nom.toLowerCase().includes(q) ||
+      (p.chambre && p.chambre.toLowerCase().includes(q)) ||
+      (p.numeroDossier && p.numeroDossier.toLowerCase().includes(q))
+    );
+
+    if (filtered.length === 0) { dropdown.style.display = 'none'; return; }
+    dropdown.style.display = 'block';
+    // BUG 4 FIX: use only p.id (safe alphanumeric) in onclick attr; nom/chambre rendered via textContent via escapeHtml in innerHTML
+    dropdown.innerHTML = filtered.slice(0, 10).map(p => `
+      <div class="qv-dropdown-item" onclick="selectQvPatient('${p.id}')">
+        <strong>${escapeHtml(p.nom)}</strong> — Ch. ${escapeHtml(p.chambre)}
+        <span style="font-size:11px;color:var(--text-muted);"> · ${escapeHtml(p.statut)}</span>
+      </div>`).join('');
+  }
+
+  function selectQvPatient(id) {
+    // BUG 4 FIX: resolve name and chambre from patients array, never from onclick attr
+    const p = patients.find(x => x.id === id);
+    if (!p) return;
+    _qvSelectedPatientId = id;
+    document.getElementById('qvPatientSearch').value = '';
+    document.getElementById('qvDropdown').style.display = 'none';
+    const sel = document.getElementById('qvSelectedPatient');
+    sel.textContent = `✓ ${p.nom} — Ch. ${p.chambre}`;
+    sel.style.display = 'block';
+  }
+
+  function submitQuickVitals() {
+    const errEl = document.getElementById('qvValidationError');
+    errEl.style.display = 'none';
+    const showErr = (msg) => { errEl.textContent = msg; errEl.style.display = 'block'; };
+
+    if (!_qvSelectedPatientId) { showErr('Veuillez sélectionner un patient.'); return; }
+
+    const vals = {
+      tas: document.getElementById('qvTAS').value,
+      tad: document.getElementById('qvTAD').value,
+      fc: document.getElementById('qvFC').value,
+      fr: document.getElementById('qvFR').value,
+      temp: document.getElementById('qvTemp').value,
+      spo2: document.getElementById('qvSpO2').value,
+      spo2O2: document.getElementById('qvSpO2O2').value,
+      glyc: document.getElementById('qvGlyc').value,
+      poids: document.getElementById('qvPoids').value,
+      glasgowY: '', glasgowV: '', glasgowM: ''
+    };
+    const coreFields = ['tas','tad','fc','fr','temp','spo2','glyc','poids'];
+    if (coreFields.every(k => vals[k] === '')) { showErr('Veuillez renseigner au moins une constante.'); return; }
+    if (vals.tas !== '' && vals.tad !== '') {
+      const tas = parseFloat(vals.tas), tad = parseFloat(vals.tad);
+      if (!isNaN(tas) && !isNaN(tad) && tad >= tas) { showErr(`Incohérence : TAD (${tad}) ≥ TAS (${tas}) mmHg.`); return; }
+    }
+
+    const rec = getClinicalRecord(_qvSelectedPatientId);
+    rec.vitals.push({ id: 'v_' + Date.now(), date: new Date().toISOString(), ...vals });
+    setClinicalRecord(_qvSelectedPatientId, rec);
+    closeQuickVitals();
+    renderDashboard();
+    const p = patients.find(x => x.id === _qvSelectedPatientId);
+    showToast(`Constantes enregistrées pour ${p ? p.nom : 'le patient'}.`);
+    logAudit('ADD_VITALS_QUICK', 'vitals', _qvSelectedPatientId, { via: 'saisie_rapide' });
+  }
 
   function renderSidebarList() {
     const container = document.getElementById('sidebarPatientList');
@@ -3397,25 +3738,74 @@
     link.click();
   }
 
-  function exportBackup() {
+  // ===== SAUVEGARDE CHIFFRÉE (AES-GCM — même clé que les dossiers) =====
+  async function exportBackup() {
+    if (!_encryptionKey) { alert('Session verrouillée — impossible de sauvegarder.'); return; }
     const payload = {
       exportedAt: new Date().toISOString(),
-      app: 'MediTrack',
-      version: '2.0-clinic',
+      app: 'MediTrack', version: 'v11',
       patients,
       dossiers: loadDossiers(),
       clinical: loadClinical(),
       clinicSettings: loadClinicSettings() || {}
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'meditrack_backup_' + new Date().toISOString().slice(0,10) + '.json';
-    link.click();
-    showToast('Sauvegarde JSON exportée.');
+    try {
+      // Chiffrement AES-GCM identique à encryptValue()
+      const enc = new TextEncoder();
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const plaintext = enc.encode(JSON.stringify(payload));
+      const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, _encryptionKey, plaintext);
+      const backupObj = {
+        __meditrack_backup: true,
+        encrypted: true,
+        exportedAt: payload.exportedAt,
+        version: 'v11',
+        iv: bufToBase64(iv),
+        data: bufToBase64(ciphertext)
+      };
+      const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'meditrack_backup_chiffre_' + new Date().toISOString().slice(0,10) + '.json';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      // Mémoriser la date du dernier backup
+      try { localStorage.setItem('meditrack_last_backup', new Date().toISOString()); } catch(e) {}
+      logAudit('EXPORT_BACKUP', 'system', 'backup', { encrypted: true });
+      showToast('Sauvegarde chiffrée exportée avec succès.');
+    } catch(err) {
+      alert('Erreur lors de la sauvegarde : ' + err.message);
+    }
   }
 
-  function importBackupPayload(payload) {
+  // Suggestion de backup si > 30 jours sans sauvegarde
+  function checkBackupReminder() {
+    try {
+      const last = localStorage.getItem('meditrack_last_backup');
+      if (!last) return; // premier lancement, pas de rappel agressif
+      const daysSince = (Date.now() - new Date(last).getTime()) / 86400000;
+      if (daysSince > 30 && patients.length > 0) {
+        showToast('⚠ Dernière sauvegarde il y a ' + Math.floor(daysSince) + ' jours — pensez à sauvegarder.');
+      }
+    } catch(e) {}
+  }
+
+  async function importBackupPayload(payload) {
+    // Support backup chiffré v11
+    if (payload && payload.__meditrack_backup && payload.encrypted) {
+      if (!_encryptionKey) throw new Error('Session verrouillée — impossible de déchiffrer la sauvegarde.');
+      const iv = base64ToBuf(payload.iv);
+      const ciphertext = base64ToBuf(payload.data);
+      const dec = new TextDecoder();
+      let plain;
+      try {
+        const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, _encryptionKey, ciphertext);
+        plain = JSON.parse(dec.decode(plaintext));
+      } catch(e) {
+        throw new Error('Déchiffrement impossible — cette sauvegarde a été créée avec une clé différente.');
+      }
+      return importBackupPayload(plain); // récursif sur le payload déchiffré
+    }
     if (!payload || typeof payload !== 'object') {
       throw new Error('Format de sauvegarde invalide.');
     }
@@ -3527,11 +3917,12 @@
     const file = e.target.files && e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(ev) {
+    reader.onload = async function(ev) {
       try {
-        importBackupPayload(JSON.parse(ev.target.result));
+        const parsed = JSON.parse(ev.target.result);
+        await importBackupPayload(parsed);
       } catch (err) {
-        alert("Impossible d'importer ce fichier JSON.");
+        alert("Impossible d'importer ce fichier : " + (err.message || 'Format invalide ou clé incorrecte.'));
       } finally {
         e.target.value = '';
       }
@@ -3733,6 +4124,8 @@
     document.getElementById('vSpO2O2').value = 'non';
     ['vGlasgowY','vGlasgowV','vGlasgowM'].forEach(f => document.getElementById(f).value = '');
     renderVitals();
+    // BUG 7 FIX: refresh dashboard NEWS2 risk panel so scores stay up-to-date
+    renderNews2RiskPanel();
   }
 
   // ===== INTERPRÉTATION CLINIQUE AUTOMATIQUE DES CONSTANTES =====
@@ -3915,6 +4308,70 @@
   const NEWS2_CSS = { low: 'score-low', medium: 'score-medium', high: 'score-high', urgent: 'score-urgent', empty: 'score-empty' };
   const GCS_CSS   = { low: 'score-low', medium: 'score-medium', high: 'score-high', urgent: 'score-urgent', empty: 'score-empty' };
 
+  /**
+   * qSOFA (quick Sequential Organ Failure Assessment) — Sepsis-3
+   * Critères : FR ≥ 22/min, PAS ≤ 100 mmHg, Altération conscience (GCS < 15)
+   * Score ≥ 2 = risque sepsis élevé → évaluation urgente
+   * Retourne : { score, critFR, critTA, critGCS, alert }
+   */
+  function calcQSOFA(v) {
+    let score = 0;
+    let critFR = false, critTA = false, critGCS = false;
+    let hasData = false;
+
+    if (v.fr !== '' && v.fr !== undefined && v.fr !== null) {
+      hasData = true;
+      if (parseFloat(v.fr) >= 22) { critFR = true; score++; }
+    }
+    if (v.tas !== '' && v.tas !== undefined && v.tas !== null) {
+      hasData = true;
+      if (parseFloat(v.tas) <= 100) { critTA = true; score++; }
+    }
+    const gY = v.glasgowY ? parseInt(v.glasgowY) : null;
+    const gV = v.glasgowV ? parseInt(v.glasgowV) : null;
+    const gM = v.glasgowM ? parseInt(v.glasgowM) : null;
+    if (gY !== null && gV !== null && gM !== null) {
+      hasData = true;
+      if ((gY + gV + gM) < 15) { critGCS = true; score++; }
+    }
+    if (!hasData) return null;
+    return { score, critFR, critTA, critGCS, alert: score >= 2 };
+  }
+
+  function renderQSOFA(v) {
+    const card = document.getElementById('qsofaCard');
+    const scoreEl = document.getElementById('qsofaScore');
+    const detailEl = document.getElementById('qsofaDetail');
+    const critFREl = document.getElementById('qsofaCritFR');
+    const critTAEl = document.getElementById('qsofaCritTA');
+    const critGCSEl = document.getElementById('qsofaCritGCS');
+    if (!card) return;
+    const q = calcQSOFA(v);
+    if (!q) {
+      card.className = 'qsofa-card';
+      scoreEl.textContent = '—';
+      detailEl.textContent = 'Données insuffisantes (FR, TAS, GCS requis)';
+      critFREl.className = 'qsofa-crit';
+      critTAEl.className = 'qsofa-crit';
+      critGCSEl.className = 'qsofa-crit';
+      return;
+    }
+    scoreEl.textContent = q.score + '/3';
+    critFREl.className = 'qsofa-crit' + (q.critFR ? ' met' : '');
+    critTAEl.className = 'qsofa-crit' + (q.critTA ? ' met' : '');
+    critGCSEl.className = 'qsofa-crit' + (q.critGCS ? ' met' : '');
+    if (q.alert) {
+      card.className = 'qsofa-card qsofa-alert';
+      detailEl.textContent = '⚠ Score ≥ 2 — Évaluation sepsis URGENTE · Prélèvements, lactate, cultures, ATB dans l\'heure';
+    } else if (q.score === 1) {
+      card.className = 'qsofa-card qsofa-warn';
+      detailEl.textContent = 'Score 1/3 — Surveiller l\'évolution, compléter l\'évaluation';
+    } else {
+      card.className = 'qsofa-card';
+      detailEl.textContent = 'Score 0/3 — Risque sepsis faible avec ces paramètres';
+    }
+  }
+
   function renderScoresFromVitals(v) {
     const news = calcNEWS2(v);
     const gcs  = calcGlasgow(v);
@@ -3950,6 +4407,8 @@
         ? gcs.items.map(i => `<span class="score-sub-item contrib">${i.label}</span>`).join('')
         : '';
     }
+    // — qSOFA card —
+    renderQSOFA(v);
   }
 
   // Preview en temps réel depuis les champs du formulaire (avant enregistrement)
@@ -5201,7 +5660,7 @@ ${bodyHtml}
     // Update sidebar
     document.getElementById('clinicName').textContent = name;
     document.getElementById('clinicSubtitle').textContent = subtitle;
-    document.getElementById('sidebarFooter').textContent = name + ' v1.0 — Données stockées localement';
+    document.getElementById('sidebarFooter').textContent = name + ' v11 — Données stockées localement · Ny Aina Med\'s';
     // Update title
     document.title = name + ' — Gestion des Patients Hospitalisés';
 
@@ -5316,10 +5775,21 @@ ${bodyHtml}
   // Apply on startup (after IndexedDB cache is loaded — see Init block at bottom)
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
+      // BUG 6 FIX: ESC closes quickVitalsOverlay first if open
+      if (document.getElementById('quickVitalsOverlay').classList.contains('open')) { closeQuickVitals(); return; }
       if (document.getElementById('settingsOverlay').classList.contains('open')) closeSettings();
       else closeDossier();
     }
   });
+
+  // BUG 5 FIX: close qvDropdown when clicking outside the search field
+  document.addEventListener('click', function(e) {
+    const search = document.getElementById('qvPatientSearch');
+    const dropdown = document.getElementById('qvDropdown');
+    if (search && dropdown && !search.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.style.display = 'none';
+    }
+  }, true);
 
   // Date du jour
   document.getElementById('todayDate').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -5458,6 +5928,11 @@ ${bodyHtml}
     if (settings) applyClinicSettings(settings);
     logAudit('LOGIN', 'session', account.id, { user: account.name, role: account.role });
     hideAllAuthOverlays();
+    // Afficher le bouton saisie rapide
+    const fab = document.getElementById('quickVitalsFab');
+    if (fab) fab.style.display = 'flex';
+    // Rappel backup si > 30 jours
+    setTimeout(checkBackupReminder, 3000);
   }
 
   function updateSessionUI() {
@@ -5482,6 +5957,17 @@ ${bodyHtml}
     resetAutoLockTimer();
   }
 
+  // Vide les compteurs du dashboard lors du verrouillage
+  function updateStatCards() {
+    ['statTotal','statHospitalise','statStable','statCritique','statSortie',
+     'navCountTotal','navCountHosp','navCountStable','navCountCritique','navCountSortie'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = '0';
+    });
+    ['news2RiskList','criticalList','vitalsDueList','recentTableBody'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.innerHTML = '';
+    });
+  }
+
   function lockSession() {
     if (!_currentSession) return;
     // Efface la clé de chiffrement de la mémoire
@@ -5501,6 +5987,8 @@ ${bodyHtml}
     document.getElementById('lockSub').textContent = `Session de ${_currentSession.name} — saisissez votre code`;
     showAuthOverlay('lockOverlay');
     clearTimeout(_autoLockTimer);
+    const fab = document.getElementById('quickVitalsFab');
+    if (fab) fab.style.display = 'none';
   }
 
   document.getElementById('lockSessionBtn').addEventListener('click', lockSession);
